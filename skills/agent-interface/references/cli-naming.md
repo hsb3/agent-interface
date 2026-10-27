@@ -1,55 +1,48 @@
 # CLI and MCP naming rules
 
-Every CLI command and MCP tool name follows one grammar: a noun, then a verb. `tool issue list` is a CLI command. `issue_list` is its MCP tool. One grammar means a reader can guess a name they have not seen.
+Every CLI command and MCP tool name is a noun, then a verb: `tool issue list` and `issue_list`. One grammar lets a reader guess a name they have not seen.
 
-The word lists are in [cli-naming.json](cli-naming.json): approved verbs, synonyms, short forms, plural exceptions and root commands. This file holds the rules and does not repeat the lists. `tree.py check` applies the rules to a command tree ([tree-format.md](tree-format.md)). Each finding it returns names its rule in the `rule` field, using the ids below.
-
-A finding is a **violation** or an **advisory**. A violation fails the check. An advisory is reported and does not fail it. Some findings propose a new name. Others name a problem and leave the choice to the owner.
+[cli-naming.json](cli-naming.json) holds the verbs, synonyms, short forms, plural exceptions and root commands. `tree.py check` applies these rules to a command tree ([tree-format.md](tree-format.md)) and puts the rule id in each finding's `rule` field. A violation fails the check. An advisory is reported and does not. A finding about a command carries its `source`; `collision` and `incomplete-tree` have `source: null`.
 
 ## Verbs
 
 ### `approved-verbs`
 
-The verb must be an approved verb, or a local verb of this CLI.
-
-- `synonym` (violation): the verb is an automatic synonym of an approved verb. The check proposes the approved verb.
-- `unlisted-verb` (advisory): the verb is in no list. No name is proposed.
+The verb must be an approved verb or a local verb. `synonym` (violation) is an automatic synonym; the check proposes the approved verb. `unlisted-verb` (advisory) is in no list; no name is proposed.
 
 Reason: one verb per meaning, so `list` never competes with `ls`.
 
 ### `confirm-only-synonyms`
 
-A confirm-only synonym is reported, never renamed.
+A confirm-only synonym gets `confirm-synonym` (advisory). No name is proposed; the owner decides.
 
-- `confirm-synonym` (advisory): no name is proposed. The owner decides.
-
-Reason: these words can change meaning. `set` is not always `update`, and `pull` is not always `sync`.
+Reason: these words can change meaning. `set` is not always `update`.
 
 ## Nouns
 
-These rules apply to CLI nouns. MCP nouns are not checked against them.
+These rules apply to CLI nouns only.
 
 ### `noun-singular`
 
-Use the singular: `issue`, not `issues`. A noun that ends in `s` and is not a plural exception gets a `plural` finding (advisory). No name is proposed.
+Use the singular. A noun ending in `s` that is not a plural exception gets `plural` (advisory). No name is proposed.
 
-Reason: a trailing `s` is sometimes part of the word (`status`), so the check never removes it on its own authority.
+Reason: a trailing `s` can be part of the word (`status`), so it is never removed on the check's own authority.
 
 ### `noun-full-word`
 
-Use the full word. A short form is allowed only when it is the common name (`repo`). If the long form is used where a short form is listed, the check reports `long-form` (violation) and proposes the short form.
+Use the full word, except a listed short form that is the common name (`repo`). The long form of a listed short form gets `long-form` (violation); the check proposes the short form. Unlisted abbreviations are the owner's call.
 
-Reason: one spelling per noun. Abbreviations that are not listed are not checked; the owner judges them.
+Reason: one spelling per noun.
 
 ### `noun-hyphenated`
 
-Write a multi-word noun with a hyphen: `work-item`. An underscore in a CLI noun is `underscore-in-noun` (violation). The check proposes the hyphenated noun. In MCP names the noun uses an underscore (`work_item_list`), so this rule does not apply to them.
+Hyphenate multi-word nouns: `work-item`. An underscore in a CLI noun gets `underscore-in-noun` (violation); the check proposes the hyphenated noun. MCP names use an underscore (`work_item_list`).
 
-Reason: an underscore in an MCP name separates the noun from the verb, and a hyphen in a CLI keeps the noun one argument.
+Reason: in an MCP name the underscore separates noun from verb, so a CLI hyphen keeps the same noun one word.
 
 ### `noun-not-verb`
 
-A noun must not also be an approved verb. Use `job`, not `run`; `report`, not `check`. The rule applies to the whole noun, so `sync-state` passes. The finding is `noun-is-verb` (violation). No name is proposed.
+A noun must not be an approved verb: `job`, not `run`. Only the whole noun counts, so `sync-state` passes. The finding is `noun-is-verb` (violation); no name is proposed.
 
 Reason: `tool run run` cannot be read.
 
@@ -57,15 +50,13 @@ Reason: `tool run run` cannot be read.
 
 ### `tree-noun-verb`
 
-A CLI uses either flat commands (`tool list`) or `tool noun verb` commands, not both. If it has both one-word and two-word commands, each one-word command is `mixed-shape` (violation). No name is proposed. This holds even with one noun (`list` next to `issue list`). Stubs, aliases, root commands and `depth` violations are not counted.
+A CLI uses flat commands (`tool list`) or `tool noun verb`, not both. If it has both one-word and two-word commands, each one-word command gets `mixed-shape` (violation), even with one noun. No name is proposed. Stubs, aliases, root commands and `depth` violations are not counted. A one-noun CLI may be all flat. MCP names always keep the noun (`note_list`).
 
-A CLI with one noun may use the flat form for all its commands. It is allowed, not required. MCP names always keep the noun (`note_list`).
-
-Reason: a reader who has seen one command should know where the next one is.
+Reason: a reader who has seen one command should know where the next is.
 
 ### `tree-depth`
 
-A command path has at most two words. Paths that start with a root command are exempt, because they are skipped. A longer path is `depth` (violation) and is not classified further. No name is proposed.
+A path has at most two words. A longer path gets `depth` (violation) and is not classified further. No name is proposed. Paths starting with a root command are skipped, so exempt.
 
 Reason: the standard has no area level yet.
 
@@ -73,91 +64,67 @@ Reason: the standard has no area level yet.
 
 ### `collisions`
 
-If two proposed names are the same, or a proposed name is already a command, the check drops those proposals and reports one `collision` (violation). Its `path` is the target name. No name is proposed. The other findings keep their codes.
+If two proposed names are equal, or a proposed name is already a command, those proposals are dropped and one `collision` (violation) names the target. No name is proposed. "Already a command" covers every CLI path and MCP name in the tree, stubs, aliases and root commands included. A stubbed name is never reused.
 
-Already a command means any CLI path or MCP name in the tree, including stubs, aliases and root commands. CLI paths and MCP names share one set of names. A stubbed name is never reused.
-
-Reason: a rename must not hide or replace another command.
+Reason: a rename must not replace another command.
 
 ### `complete-tree`
 
-The check can only judge the commands it is given. If the tree says `complete: false`, the check reports `incomplete-tree` (advisory) with `path` set to `""`. The message lists the sources read. No name is proposed.
+A tree with `complete: false` gets `incomplete-tree` (advisory), `path` `""`, and the sources read in the message. No name is proposed.
 
-Reason: a clean result on a partial tree would be a false all-clear.
+Reason: a clean result on a partial tree is a false all-clear.
 
 ## MCP names
 
 ### `mcp-noun-verb`
 
-An MCP tool name is `noun_verb`. The noun is everything before the last underscore. The verb is the last word. The findings are:
+An MCP name is `noun_verb`: the verb is the last word and the noun is everything before the last underscore. A last-word verb is then checked as for a CLI path, under `approved-verbs` or `confirm-only-synonyms`. The findings are:
 
-- `verb-first` (violation): the name starts with a verb, as in `list_notes`. The check proposes the noun first and the verb last (`note_list`). It removes a trailing `s` from the noun unless the noun is a plural exception. This is the one place a trailing `s` is removed, because the name changes anyway and the owner reviews the plan. If the first word is a confirm-only synonym, the name is flagged with no proposal, plus a `confirm-synonym` advisory.
-- `verb-not-last` (advisory): a middle word is a verb, as in `issue_list_all`. No name is proposed.
-- `ambiguous` (advisory): both the first and last word are verbs, or neither is (`check_run`, `random_id`). No name is proposed.
-- `no-noun` (advisory): the name has no underscore (`slugify`). No name is proposed.
+- `verb-first` (violation), as in `list_notes`. The check proposes `note_list`, removing a trailing `s` from the noun unless it is a plural exception. This is the only place a trailing `s` is removed, because the name changes anyway and the owner reviews the plan. A leading automatic synonym is replaced by its verb (`ls_notes` gives `note_list`). A leading confirm-only synonym gets no proposal, plus `confirm-synonym`.
+- `verb-not-last` (advisory): a middle word is a verb (`issue_list_all`). No name is proposed.
+- `ambiguous` (advisory): the first and last words are both verbs or neither is (`check_run`, `random_id`). No name is proposed.
+- `no-noun` (advisory): no underscore (`slugify`). No name is proposed.
 
-When the last word is a verb, it is checked as for a CLI path. An automatic synonym falls under `approved-verbs`. A confirm-only synonym falls under `confirm-only-synonyms` (`issue_set`).
-
-Reason: the same grammar as the CLI, so `issue list` and `issue_list` are the same command.
+Reason: the same grammar as the CLI.
 
 ## How names are classified
 
-The check looks words up in the lists. It never decides by position alone.
-
-For a CLI path:
-
-1. A one-word path is a flat command, and its word is the verb. A two-word path is `noun verb`.
-2. The verb is looked up. An approved or local verb passes. An automatic synonym is a `synonym` violation. A confirm-only synonym is a `confirm-synonym` advisory. Anything else is an `unlisted-verb` advisory.
-3. The noun is checked against the noun rules.
-
-For an MCP name, the check splits on `_` and looks up each word. A word is a verb if it is an approved verb, a synonym of either kind, or a local verb. The first row that matches wins:
+Words are looked up in the lists, never judged by position. A CLI path of one word is a flat command whose word is the verb; two words are `noun verb`. For an MCP name, a word is a verb if it is an approved verb, a synonym of either kind, or a local verb. The first matching row wins:
 
 | Order | Case | Result |
 | --- | --- | --- |
 | 1 | No underscore | `no-noun` |
 | 2 | A middle word is a verb | `verb-not-last` |
-| 3 | The last word is a verb and the first is not | `noun_verb`; the verb is then checked as for a CLI path |
-| 4 | The first word is a verb and the last is not | `verb-first` |
-| 5 | Both are verbs, or neither is | `ambiguous` |
+| 3 | Last word is a verb, first is not | `noun_verb` |
+| 4 | First word is a verb, last is not | `verb-first` |
+| 5 | Both or neither | `ambiguous` |
 
-A verb is always one word. A verb-first name that begins with an automatic synonym gets that synonym replaced by its verb in the proposal (`ls_notes` becomes `note_list`).
-
-When one command has several renaming findings, each proposes the fully fixed name (`work-item list`). They are not collisions with each other.
-
-## Finding sources
-
-A finding about a command carries that command's `source` from the tree. A finding about the whole tree (`collision`, `incomplete-tree`) has `source: null`.
-
-## Adding a verb to the shared list
-
-A new verb must not be a synonym of an existing verb. At least two CLIs must need it. Record `added` (the date) and `needed_by` (the CLIs) with it in [cli-naming.json](cli-naming.json). The two-CLI rule also applies when a local verb is promoted into the shared list.
+When one command has several renaming findings, each proposes the fully fixed name (`work-item list`); they do not collide with each other.
 
 ## Root commands, stubs and aliases
 
-The check skips two kinds of entry:
-
-- Entries whose `kind` is `stub` or `alias`. They are old names that point to a new one.
-- Entries whose CLI path starts with a root command. Root commands are never checked or renamed. `serve` is a root command because MCP clients launch servers with `<tool> serve`.
-
-Only the path is skipped. An `mcp_name` on a root-command entry is still checked.
+The check skips entries of kind `stub` or `alias`, and entries whose CLI path starts with a root command. Root commands are never checked or renamed; `serve` is one because MCP clients launch servers with `<tool> serve`. Only the path is skipped: an `mcp_name` on a root-command entry is still checked.
 
 ## Local verbs
 
-A tree may list `local_verbs` ([tree-format.md](tree-format.md)): words that count as approved for that CLI only. A CLI that is a function library might list its own verbs, such as `encode` or `parse`.
+A tree's `local_verbs` ([tree-format.md](tree-format.md)) are words approved for that CLI only.
 
 - Only the owner decides that a word becomes a local verb.
-- The agent writes it to `local_verbs` on the owner's answer, and never on its own to make a finding go away.
-- If the owner decides to keep a confirm-only synonym, record the word in `local_verbs`. For example, `set` for `config set`.
-- Keep `local_verbs` when the tree is rebuilt.
+- The agent writes it on the owner's answer, never on its own to silence a finding.
+- A confirm-only synonym the owner keeps goes in `local_verbs` (`set` for `config set`).
 
-Reason: a local verb is a decision to leave the standard, and only the owner can make it.
+Reason: a local verb leaves the standard, and only the owner can decide that.
+
+## Adding a verb to the shared list
+
+A new verb must not be a synonym of an existing verb, and at least two CLIs must need it. Record `added` (date) and `needed_by` (CLIs) in [cli-naming.json](cli-naming.json). The two-CLI rule also applies when promoting a local verb.
 
 ## Renames
 
-- **One step per CLI.** Rename the command, update every caller found, and install a permanent stub for the old name, all in one commit.
-- **Permanent stub.** A stub is hidden from `--help`, writes nothing to stdout, exits 2, and prints `renamed to: <new argv>` on stderr. The tree records it as `kind: stub`. The stub stays in the code, so it is the lasting record of the rename and the old name is never reused.
-- **Working alias.** Use an alias only for a caller that cannot be edited right away. It gives the same stdout and exit code as the new command, and prints `renamed to: <new argv>` on stderr. The tree records it as `kind: alias`.
-- **MCP tools are a hard cut.** Rename the tool with no alias tool. Update the tool list, tiers, snapshots and permission entries together.
+- **One step per CLI.** Rename the command, update every caller found, and install a permanent stub, all in one commit.
+- **Permanent stub.** Hidden from `--help`, no stdout, exit 2, and `renamed to: <new argv>` on stderr. The tree records it as `kind: stub`. It stays as the lasting record, and the old name is never reused.
+- **Working alias.** Only for a caller that cannot be edited yet. Same stdout and exit code as the new command, and `renamed to: <new argv>` on stderr. The tree records it as `kind: alias`.
+- **MCP hard cut.** Rename the tool with no alias tool, and update the tool list, tiers, snapshots and permission entries together.
 - **Renames are pure.** A rename that also changes behavior or arguments is a separate change.
 
-Finding callers and writing the rename plan are described in [remediation.md](remediation.md).
+Finding callers and writing the rename plan: [remediation.md](remediation.md).
