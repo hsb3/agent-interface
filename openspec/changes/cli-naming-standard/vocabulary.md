@@ -93,6 +93,17 @@ A verb is always exactly one word. A verb-first rename is the one place a traili
 
 **Collisions:** if two proposed names are the same, or a proposed name is already a command, both findings keep their codes but lose their proposed names, and one `collision` finding names the target. Only violations that propose a name go into a rename plan.
 
+## Finding details
+
+Settled 2026-10-27 during the build, where the rules above left a case open:
+
+- **`source`:** each command in the tree carries a `source` holding one `sources[].ref`; a finding about a command copies it. Findings about the whole tree (`incomplete-tree`, `collision`) have `source: null`.
+- **Several renaming violations on one command** (`work_item ls` is both `underscore-in-noun` and `synonym`): every such finding proposes the fully fixed name (`work-item list`). The collision rule compares proposed names across different commands only, never a command's findings with each other.
+- **`mixed-shape`:** only when the CLI has both one-word and two-word leaves, counting only commands that are not skipped and not `depth` violations. One finding per one-word leaf, with `path` set to that leaf.
+- **`collision`:** `path` is the target name, `source` is `null`, `rule` names the collision rule. "Already a command" covers every `path` and `mcp_name` in the tree, including stubs, aliases and root commands, since a stubbed name is never reused.
+- **MCP nouns:** not checked against noun-form rules in v1. The only noun change in an MCP name is the trailing-`s` removal in a verb-first suggestion.
+- **Verb-first name starting with a synonym:** an automatic synonym is replaced by its verb in the suggestion (`ls_notes` → `note_list`), as one `verb-first` finding. A confirm-only synonym (`show_notes`) gives a `verb-first` finding with no proposed name, plus a `confirm-synonym` advisory.
+
 ## Renames
 
 - **One step per CLI:** rename the command, update every caller the search finds, and install a permanent stub for the old name, all in one commit. A working alias is used only for a caller that can't be edited right away. It gives the same stdout and exit code and prints `renamed to: <new argv>` on stderr, and it is recorded in the tree as `kind: alias`.

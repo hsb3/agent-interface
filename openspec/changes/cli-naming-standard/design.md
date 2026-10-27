@@ -60,7 +60,7 @@ Added:
 - `skills/agent-interface/references/cli-naming.md`: the rules in prose, with a one-line reason for each. It links to the JSON and does not repeat its lists.
 - `skills/agent-interface/references/tree-format.md`: the tree file's fields and types:
   - Top level: `cli`, `sources` (each with `kind` `catalog` or `source`, and `ref`, a repo-relative path), `complete`, `local_verbs` and `commands`.
-  - Each command: `path` (an array of words, or `null` for an MCP tool with no CLI command), `mcp_name` (a string or `null`; at least one of the two is set), `kind` (`command`, `alias` or `stub`) and `renamed_to` (an array, required for `alias` and `stub`).
+  - Each command: `path` (an array of words, or `null` for an MCP tool with no CLI command), `mcp_name` (a string or `null`; at least one of the two is set), `kind` (`command`, `alias` or `stub`), `renamed_to` (an array, required for `alias` and `stub`) and `source` (one `sources[].ref`).
   - The check trusts `kind` as written; the agent sets it from the source.
   - A dispatcher CLI that runs tools as `call <name>` lists each tool by `mcp_name` with `path: null` and leaves out `call`. The reply then says that its names were checked as MCP names only.
   - A CLI whose command paths are generated from a catalog records the paths it actually exposes, with the catalog as their source.
