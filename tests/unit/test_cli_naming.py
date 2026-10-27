@@ -247,6 +247,14 @@ INVALID = {
                                       "source": "cli.py"}),
     "complete not a boolean": tree(complete="yes"),
     "local_verbs not a list": tree(local_verbs="encode"),
+    "source not a string": tree(cmd("issue list", source=["cli.py"])),
+    "empty renamed_to": tree(dict(cmd("issue ls", kind="stub"), renamed_to=[])),
+    "empty path word": tree(dict(cmd(), path=["", "list"])),
+    "path word with a space": tree(dict(cmd(), path=["issue list"])),
+    "empty mcp_name": tree(cmd(mcp="")),
+    "mcp_name with an empty word": tree(cmd(mcp="issue__list")),
+    "mcp_name with a leading underscore": tree(cmd(mcp="_list")),
+    "deeply nested JSON": "[" * 100000 + "]" * 100000,
 }
 
 
@@ -274,6 +282,17 @@ def test_unreadable_tree_exits_2(tmp_path):
 def test_usage_error_exits_2(argv):
     p = subprocess.run([sys.executable, str(SCRIPT), *argv], capture_output=True, text=True, timeout=30)
     assert_error(p.returncode, p.stdout, p.stderr, "usage")
+
+
+def test_closed_stdout_exits_2(tmp_path):
+    f = tmp_path / "cli-tree.json"
+    f.write_text(json.dumps(tree(*(cmd(f"n{i} ls") for i in range(2000)))), encoding="utf-8")
+    p = subprocess.Popen([sys.executable, str(SCRIPT), "check", str(f)],
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    p.stdout.close()
+    err = p.stderr.read()
+    assert p.wait(timeout=30) == 2
+    assert json.loads(err)["error"]["code"] == "internal-error"
 
 
 @pytest.mark.skipif(not Path("/usr/bin/python3").exists(), reason="no system Python")

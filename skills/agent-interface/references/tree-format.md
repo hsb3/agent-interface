@@ -16,11 +16,11 @@ The command-tree file lists every command and MCP tool name of one CLI. An agent
 
 | Field | Type | Required | Meaning |
 |-------|------|----------|---------|
-| `path` | array of words, or `null` | yes (key) | The argv words of the command. `null` for an MCP tool with no CLI command. Never an empty array. |
-| `mcp_name` | string, or `null` | yes (key) | The MCP tool name. At least one of `path` and `mcp_name` is non-null. |
+| `path` | array of words, or `null` | yes (key) | The argv words of the command. `null` for an MCP tool with no CLI command. Never an empty array; each word is non-empty and has no spaces. |
+| `mcp_name` | string, or `null` | yes (key) | The MCP tool name, with no empty word between underscores. At least one of `path` and `mcp_name` is non-null. |
 | `kind` | `"command"`, `"alias"` or `"stub"` | yes | What the entry is. |
 | `source` | string | yes | One of the `sources[].ref` values: the source this command was read from. Findings about the command report it. |
-| `renamed_to` | array of words | for `alias` and `stub` | The new argv, starting with the CLI name. |
+| `renamed_to` | non-empty array of words | for `alias` and `stub` | The new argv, for example `["notes", "note", "list"]`. |
 
 ## Rules
 
