@@ -1,6 +1,6 @@
 # Command-tree file format
 
-The command-tree file lists every command and MCP tool name of one CLI. An agent writes it to `docs/cli-tree.json` in the CLI's repo. `tree.py check` reads it. A file that breaks any rule below makes the check exit 2 with an `invalid-tree` error.
+The command-tree file lists every command and MCP tool name of one CLI. An agent writes it to `docs/cli-tree.json` in the CLI's repo. `tree.py check` reads it. A file that breaks any rule below makes the check exit 2 with an `invalid-tree` error. The naming rules the check applies are in [cli-naming.md](cli-naming.md).
 
 ## Top-level fields
 

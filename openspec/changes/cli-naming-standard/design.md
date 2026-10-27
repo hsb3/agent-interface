@@ -69,7 +69,7 @@ Added:
   - building the tree from a catalog and from argparse, click and commander definitions in source, keeping `local_verbs` when rebuilding;
   - the caller search: one `rg --hidden --line-number --fixed-strings` command template over the roots and patterns in `vocabulary.md`, plus `crontab -l` and launchd plists converted with `plutil -convert xml1 -o -`;
   - recording the exact search command;
-  - the `docs/cli-renames.json` format: `standard_version`, `search`, and `renames` with `old`, `new` and `callers` as `~/`-relative `file:line`, never the matched text. The file is rewritten on each fix run.
+  - the `docs/cli-renames.json` format: `standard_version`, `search`, and `renames` with `old`, `new` and `callers` as `file:line`, `~/`-relative under the home folder and otherwise relative to the search root, never the matched text. The file is rewritten on each fix run.
 - Evals: one case per spec scenario under `evals/agent-interface/<case>/`, nine in all. Each case writes its own small fixture (a Python argparse CLI, or a `toolkit.json`) in the eval workspace, and names that workspace as the caller-search root. Each case's `prompt.md` lists its tools. Cases that run the check, or `ls`, include `Bash`.
 - `tests/unit/test_cli_naming.py`:
   - the MCP-name classification table in `vocabulary.md`, with its expected results;
@@ -146,7 +146,7 @@ None.
 - **The check covers only commands present in the tree.** A tree built from a catalog alone misses admin commands. The tree records its sources and `complete`, and an incomplete tree produces an `incomplete-tree` finding.
 - **The agent can build a wrong tree,** for example with a wrong path or a stub misread as a real command. The check cannot catch this. The owner reviews the tree in the git diff before applying a plan, and every finding names its `source`.
 - **The caller search misses some callers,** for example commands built from variables, or files outside the roots. The plan records the search command so it can be rerun, and the permanent stub fails loudly for any caller that was missed.
-- **Caller files can hold secrets** (`~/.claude.json`, MCP `env` blocks, shell rc files). The plan records `~/`-relative `file:line` only, never the matched text, so a pushed repo leaks no file contents.
+- **Caller files can hold secrets** (`~/.claude.json`, MCP `env` blocks, shell rc files). The plan records relative `file:line` only, never the matched text, so a pushed repo leaks no file contents.
 - **The prose rules and the JSON vocabulary could contradict each other.** The prose never lists vocabulary, and the unit test checks the JSON's consistency.
 
 ## Alternatives rejected

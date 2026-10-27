@@ -24,7 +24,7 @@ When asked to check a named CLI, the skill SHALL write that CLI's command tree t
 - **EVAL** evals/agent-interface/skips-stub
 
 ### Requirement: Plan renames with their callers
-When asked to fix a CLI's names, the skill SHALL write `docs/cli-renames.json` in the CLI's repository listing each proposed rename with every caller found in the search roots (the folders the user names, or the default roots) as a home-relative `file:line` without the matched text, the search command it ran, and the standard version, and SHALL NOT edit the CLI's code or its callers.
+When asked to fix a CLI's names, the skill SHALL write `docs/cli-renames.json` in the CLI's repository listing each proposed rename with every caller found in the search roots (the folders the user names, or the default roots) as a `file:line` relative to the home folder or the search root, without the matched text, the search command it ran, and the standard version, and SHALL NOT edit the CLI's code or its callers.
 
 #### Scenario: Rename plan with a caller
 - **WHEN** the user asks to fix a CLI with `issue ls`, names the workspace as the search root, and a script in the workspace runs `tool issue ls`
