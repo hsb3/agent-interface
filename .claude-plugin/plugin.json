@@ -12,8 +12,5 @@
   "icon": "./assets/icon.png",
   "documentationUrl": "https://github.com/hsb3/agent-interface/blob/main/docs/claude.md",
   "supportUrl": "https://github.com/hsb3/agent-interface/issues",
-  "privacyPolicyUrl": "https://github.com/hsb3/agent-interface/blob/main/docs/privacy.md",
-  "agents": [
-    "./.claude-plugin/agents/agent-interface-reviewer.md"
-  ]
+  "privacyPolicyUrl": "https://github.com/hsb3/agent-interface/blob/main/docs/privacy.md"
 }
