@@ -7,7 +7,6 @@ import sys
 
 VOCAB = Path(__file__).resolve().parent.parent / "references" / "cli-naming.json"
 KINDS = ("command", "alias", "stub")
-SOURCE_KINDS = ("catalog", "source")
 VIOLATIONS = {"synonym", "verb-first", "underscore-in-noun", "long-form", "noun-is-verb",
               "depth", "mixed-shape", "collision"}
 RULES = {
@@ -42,7 +41,7 @@ def load_tree(name):
     need(isinstance(t.get("cli"), str), "cli must be a string")
     sources = t.get("sources")
     need(isinstance(sources, list) and all(
-        isinstance(s, dict) and s.get("kind") in SOURCE_KINDS and isinstance(s.get("ref"), str)
+        isinstance(s, dict) and s.get("kind") in ("catalog", "source") and isinstance(s.get("ref"), str)
         for s in sources), "sources must be a list of {kind: catalog|source, ref: string}")
     need(isinstance(t.get("complete"), bool), "complete must be a boolean")
     need(isinstance(t.get("commands"), list), "commands must be a list")
@@ -58,10 +57,10 @@ def load_tree(name):
         m = c["mcp_name"]
         need(m is None or (isinstance(m, str) and all(m.split("_"))),
              f"{where}.mcp_name must be null or words joined by single underscores")
-        need(c["path"] is not None or c["mcp_name"] is not None,
-             f"{where} needs a path or an mcp_name")
+        need(c["path"] is not None or m is not None, f"{where} needs a path or an mcp_name")
         need(c["kind"] in KINDS, f"{where}.kind must be one of {', '.join(KINDS)}")
-        need(isinstance(c["source"], str) and c["source"] in refs, f"{where}.source must be one of the sources[].ref values")
+        need(isinstance(c["source"], str) and c["source"] in refs,
+             f"{where}.source must be one of the sources[].ref values")
         if c["kind"] != "command":
             need(is_words(c.get("renamed_to")) and c["renamed_to"],
                  f"{where} of kind {c['kind']} needs a non-empty renamed_to list")
@@ -73,7 +72,6 @@ def check(t, v):
     long_to_short = {full: short for short, full in v["short_forms"].items()}
     exceptions, roots = set(v["plural_exceptions"]), set(v["root_commands"])
     local = set(t.get("local_verbs", []))
-    cmds = t["commands"]
     findings, proposals, leaves = [], [], []
 
     def add(code, path, message, source, suggest=None, owner=None):
@@ -101,7 +99,7 @@ def check(t, v):
     def is_verb(word):
         return word in verbs or word in local or word in syn or word in confirm
 
-    for i, c in enumerate(cmds):
+    for i, c in enumerate(t["commands"]):
         if c["kind"] != "command":
             continue
         src, p, m = c["source"], c["path"], c["mcp_name"]
@@ -165,10 +163,9 @@ def check(t, v):
                 add("mixed-shape", name, "flat leaf in a CLI that also has noun verb leaves", src)
 
     holders = {}
-    for i, c in enumerate(cmds):
-        for name in (" ".join(c["path"]) if c["path"] else None, c["mcp_name"]):
-            if name is not None:
-                holders.setdefault(name, set()).add(i)
+    for i, c in enumerate(t["commands"]):
+        for name in filter(None, (" ".join(c["path"] or []), c["mcp_name"])):
+            holders.setdefault(name, set()).add(i)
     by_target = {}
     for f, i in proposals:
         by_target.setdefault(f["suggest"], []).append((f, i))
