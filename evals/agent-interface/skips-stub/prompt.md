@@ -10,7 +10,7 @@ import argparse
 import sys
 
 
-def old_ls(args):
+def issue_ls(args):
     print("renamed to: tool issue list", file=sys.stderr)
     sys.exit(2)
 
@@ -20,11 +20,11 @@ def main(argv=None):
     sub = parser.add_subparsers(dest="noun", required=True)
 
     issue = sub.add_parser("issue", help="work with issues")
-    issue_sub = issue.add_subparsers(dest="verb", required=True)
+    issue_sub = issue.add_subparsers(dest="verb", required=True, metavar="{list,get}")
     issue_sub.add_parser("list", help="list issues")
     issue_sub.add_parser("get", help="get one issue")
-    ls = issue_sub.add_parser("ls", help=argparse.SUPPRESS)
-    ls.set_defaults(func=old_ls)
+    ls = issue_sub.add_parser("ls")
+    ls.set_defaults(func=issue_ls)
 
     args = parser.parse_args(argv)
     if getattr(args, "func", None):
