@@ -68,7 +68,9 @@ the error and stop. Never work out findings by hand.
 Take every count and finding from the envelope:
 
 - The number of violations and the number of advisories, then each finding:
-  its `path`, `severity`, `code` and `message`, and its proposed name.
+  its `path`, `severity`, `code` and `message`, and its proposed name. Group
+  the findings by `severity` first and take each count from its group, so the
+  counts match the list.
 - The proposed name is the finding's `suggest`, exactly. When `suggest` is
   `null`, say "no proposed name" and offer none of your own: no replacement
   verb, no flag, no other name.
