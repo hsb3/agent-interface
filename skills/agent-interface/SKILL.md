@@ -65,7 +65,7 @@ the error and stop. Never work out findings by hand.
 
 ## 4. Reply
 
-Report from the envelope only:
+Take every count and finding from the envelope:
 
 - The number of violations and the number of advisories, then each finding:
   its `path`, `severity`, `code` and `message`, and its proposed name.
@@ -74,10 +74,9 @@ Report from the envelope only:
   verb, no flag, no other name.
 - A `collision` finding: name the commands that would have been renamed to its
   `path`, and say that none of them gets a proposed name.
-- A `confirm-synonym` advisory: ask the owner whether to keep the word. A
-  "keep" is recorded by adding the word to the tree's `local_verbs`, then
-  rerunning the check. Add a local verb only on the owner's answer, never to
-  silence a finding.
+- A `confirm-synonym` advisory: ask the owner whether to keep the word. On a
+  "keep", record the word in the tree's `local_verbs` and rerun the check.
+  Never add a local verb without the owner's answer.
 - An `incomplete-tree` finding: say the tree is incomplete, so the result
   covers only part of the CLI; name the sources that were read and what could
   not be read.
@@ -101,10 +100,9 @@ caller unchanged.
 
 When asked to design a new CLI's commands: write a tree from the owner's
 description using `noun verb` paths (or flat paths for a CLI with one noun),
-singular nouns, MCP tool names as `noun_verb`, and only the verbs in
-`references/cli-naming.json` plus local verbs the owner names. Pick the approved verb that fits each action: "see all"
-is `list`, "look up one" is `get`, "change" or "rename" is `update`. A new CLI
-has no source yet: list one source, `{"kind": "source", "ref":
-"docs/cli-tree.json"}`, give every command that `source`, and set `complete`
-to `true`. A new CLI with no repo uses the working directory as its repo root.
+singular nouns, MCP tool names as `noun_verb`, and only approved verbs (the
+`verbs` in `references/cli-naming.json`, chosen by their `means`) plus local
+verbs the owner names. A new CLI has no source yet: list one source,
+`{"kind": "source", "ref": "docs/cli-tree.json"}`, give every command that
+`source`, and set `complete` to `true`. A new CLI with no repo uses the working directory as its repo root.
 Then do steps 3-4, and reply with the tree's path and the check result.
