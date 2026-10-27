@@ -8,3 +8,4 @@ evals/results/
 
 # atelier per-project activation - local, never committed
 .claude/*.local.md
+.claude/HANDOFF.md
