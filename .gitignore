@@ -5,3 +5,6 @@ __pycache__/
 evals/results/
 .DS_Store
 .dev/
+
+# atelier per-project activation - local, never committed
+.claude/*.local.md
