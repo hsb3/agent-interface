@@ -1,14 +1,22 @@
 """Checks on the CLI naming vocabulary."""
 
 from collections import Counter
+import json
 
-from helpers import read_json
+from helpers import ROOT
 
-VOCAB = "skills/agent-interface/references/cli-naming.json"
+VOCAB = ROOT / "skills/agent-interface/references/cli-naming.json"
+
+
+def no_duplicate_keys(pairs):
+    keys = [k for k, _ in pairs]
+    assert len(keys) == len(set(keys)), [k for k, n in Counter(keys).items() if n > 1]
+    return dict(pairs)
 
 
 def test_vocabulary_is_consistent():
-    data = read_json(VOCAB)
+    # json.loads keeps only the last of two equal keys, so a repeat inside one map needs the hook.
+    data = json.loads(VOCAB.read_text(encoding="utf-8"), object_pairs_hook=no_duplicate_keys)
     verbs = set(data["verbs"])
     maps = (data["synonyms"], data["confirm_synonyms"])
     words = [w for m in maps for w in m]
