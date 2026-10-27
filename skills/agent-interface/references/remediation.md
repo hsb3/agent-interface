@@ -1,6 +1,6 @@
 # Remediation procedures
 
-The repo root is the git repository that contains the CLI's source (`git -C <source folder> rev-parse --show-toplevel`), else the working directory.
+The repo root is the working directory when the CLI's catalog or source is inside it. Otherwise it is the git repository that contains the CLI's source (`git -C <source folder> rev-parse --show-toplevel`). In a monorepo, it is the CLI's own folder, the one holding its `toolkit.json` or package file.
 
 ## Building the tree
 

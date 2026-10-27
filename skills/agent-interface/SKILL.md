@@ -26,11 +26,11 @@ Hard limits, every run:
   catalog and source files only.
 - Never edit the CLI or its callers, and never add a stub. The owner applies
   renames.
-- Write only two files, both in the CLI's repo: the tree, at
+- The skill writes only two files, both in the CLI's repo: the tree, at
   `<repo>/docs/cli-tree.json`, and on a fix run the plan, at
   `<repo>/docs/cli-renames.json`. Write no report file; the reply carries the
-  findings. The repo is the git repository that holds the CLI's source, else
-  the working directory.
+  findings. Files the user asks for are theirs, not the skill's. The repo root
+  is defined at the top of `references/remediation.md`.
 - If the host refuses a write in the CLI's repo, for example because of Codex's
   workspace sandbox, stop and ask the owner to run the request from that repo.
   Do not write the file anywhere else.
