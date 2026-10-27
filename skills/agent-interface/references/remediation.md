@@ -25,7 +25,7 @@ A path is the chain of names from the root parser down to a leaf (a command with
 
 **click**
 - `@click.group()` makes a group; `@grp.command()` and `@grp.group()` add children; `grp.add_command(cmd, name="x")` adds `cmd` under `x`, else under its own name.
-- The name is the `name` argument, else the function name. Since click 7, `_` becomes `-` (`def list_all` is `list-all`); since click 8.2, a trailing `_command`, `_cmd`, `_group` or `_grp` is also dropped. Check the click version the project pins.
+- The name is the `name` argument, else the function name, lowercased. Since click 7, `_` becomes `-` (`def list_all` is `list-all`); since click 8.2, a trailing `_command`, `_cmd`, `_group` or `_grp` is also dropped. Check the click version the project pins.
 - The root group is the one the entry point names; its name is the CLI, not a path word.
 - `hidden=True` only hides it from help.
 
@@ -61,7 +61,7 @@ If `docs/cli-tree.json` already exists, copy its `local_verbs` into the new tree
 
 ## Caller search
 
-Run only on a fix run, after the check, for the violations whose `suggest` is not null.
+Run only on a fix run, after the check, for the violations whose `suggest` is not null. If no violation has one, run no search and write the plan with `"search": []` and `"renames": []`.
 
 ### Roots
 
@@ -70,7 +70,7 @@ Run only on a fix run, after the check, for the violations whose `suggest` is no
 
 ### Exclusions
 
-`dev-memory.me`, session transcripts (`~/.claude/projects`, `~/.codex/sessions`), plugin caches (`~/.claude/plugins/cache`), `.git`, `distributions/`, `node_modules`, and the CLI's `docs/cli-tree.json` and `docs/cli-renames.json`. Stale names in these places are what the permanent stub is for.
+`dev-memory.me`, session transcripts (`~/.claude/projects`, `~/.codex/sessions`, `~/.codex/archived_sessions`), plugin caches (`~/.claude/plugins/cache`, `~/.codex/plugins/cache`), `.git`, `distributions/`, `node_modules`, and the CLI's `docs/cli-tree.json` and `docs/cli-renames.json`. Stale names in these places are what the permanent stub is for.
 
 ### Patterns
 
@@ -88,6 +88,7 @@ One `rg` run covers every pattern of every rename:
 rg --hidden --line-number --fixed-strings --with-filename --no-heading --only-matching \
   -e '<pattern>' ... \
   --glob '!dev-memory.me' --glob '!**/.claude/projects/**' --glob '!**/.codex/sessions/**' \
+  --glob '!**/.codex/archived_sessions/**' --glob '!**/.codex/plugins/cache/**' \
   --glob '!**/.claude/plugins/cache/**' --glob '!.git' --glob '!distributions' \
   --glob '!node_modules' --glob '!**/docs/cli-tree.json' --glob '!**/docs/cli-renames.json' \
   <root> ...
@@ -99,6 +100,7 @@ Example, for `tool issue ls` over the current directory:
 rg --hidden --line-number --fixed-strings --with-filename --no-heading --only-matching \
   -e 'tool issue ls' -e '"tool", "issue", "ls"' \
   --glob '!dev-memory.me' --glob '!**/.claude/projects/**' --glob '!**/.codex/sessions/**' \
+  --glob '!**/.codex/archived_sessions/**' --glob '!**/.codex/plugins/cache/**' \
   --glob '!**/.claude/plugins/cache/**' --glob '!.git' --glob '!distributions' \
   --glob '!node_modules' --glob '!**/docs/cli-tree.json' --glob '!**/docs/cli-renames.json' \
   .
@@ -112,10 +114,10 @@ rg --hidden --line-number --fixed-strings --with-filename --no-heading --only-ma
 
 ```sh
 crontab -l 2>/dev/null | rg --line-number --only-matching --fixed-strings -e '<pattern>' ... | sed 's/^/crontab:/'
-for p in ~/Library/LaunchAgents/*.plist; do plutil -convert xml1 -o - "$p" | rg --line-number --only-matching --fixed-strings -e '<pattern>' ... | sed "s|^|$p:|"; done
+find ~/Library/LaunchAgents -name '*.plist' 2>/dev/null | while IFS= read -r p; do plutil -convert xml1 -o - "$p" | rg --line-number --only-matching --fixed-strings -e '<pattern>' ... | sed "s|^|$p:|"; done
 ```
 
-The caller is `crontab:<line>`, or `<plist path>:<line in the converted output>`.
+The `find` form works in zsh and bash and does nothing when there are no plists. The caller is `crontab:<line>`, or `<plist path>:<line in the converted output>`.
 
 ### Without rg
 
@@ -125,7 +127,8 @@ If `rg` is not on PATH, run the equivalent `grep` and record it the same way. `-
 grep -rnoHF -e '<pattern>' ... --exclude-dir=dev-memory.me --exclude-dir=.git \
   --exclude-dir=distributions --exclude-dir=node_modules \
   --exclude=cli-tree.json --exclude=cli-renames.json <root> ... \
-  | grep -vF -e /.claude/projects/ -e /.codex/sessions/ -e /.claude/plugins/cache/
+  | grep -vF -e /.claude/projects/ -e /.codex/sessions/ -e /.codex/archived_sessions/ \
+    -e /.claude/plugins/cache/ -e /.codex/plugins/cache/
 ```
 
 ### Recording
@@ -154,9 +157,9 @@ Example, from a default-roots search:
 {
   "standard_version": 1,
   "search": [
-    "rg --hidden --line-number --fixed-strings --with-filename --no-heading --only-matching -e 'tool issue ls' -e '\"tool\", \"issue\", \"ls\"' -e 'list_notes' --glob '!dev-memory.me' --glob '!**/.claude/projects/**' --glob '!**/.codex/sessions/**' --glob '!**/.claude/plugins/cache/**' --glob '!.git' --glob '!distributions' --glob '!node_modules' --glob '!**/docs/cli-tree.json' --glob '!**/docs/cli-renames.json' ~/Developer ~/.claude ~/.codex ~/.claude.json ~/.zshrc ~/.zprofile",
+    "rg --hidden --line-number --fixed-strings --with-filename --no-heading --only-matching -e 'tool issue ls' -e '\"tool\", \"issue\", \"ls\"' -e 'list_notes' --glob '!dev-memory.me' --glob '!**/.claude/projects/**' --glob '!**/.codex/sessions/**' --glob '!**/.codex/archived_sessions/**' --glob '!**/.codex/plugins/cache/**' --glob '!**/.claude/plugins/cache/**' --glob '!.git' --glob '!distributions' --glob '!node_modules' --glob '!**/docs/cli-tree.json' --glob '!**/docs/cli-renames.json' ~/Developer ~/.claude ~/.codex ~/.claude.json ~/.zshrc ~/.zprofile",
     "crontab -l 2>/dev/null | rg --line-number --only-matching --fixed-strings -e 'tool issue ls' -e '\"tool\", \"issue\", \"ls\"' -e 'list_notes' | sed 's/^/crontab:/'",
-    "for p in ~/Library/LaunchAgents/*.plist; do plutil -convert xml1 -o - \"$p\" | rg --line-number --only-matching --fixed-strings -e 'tool issue ls' -e '\"tool\", \"issue\", \"ls\"' -e 'list_notes' | sed \"s|^|$p:|\"; done"
+    "find ~/Library/LaunchAgents -name '*.plist' 2>/dev/null | while IFS= read -r p; do plutil -convert xml1 -o - \"$p\" | rg --line-number --only-matching --fixed-strings -e 'tool issue ls' -e '\"tool\", \"issue\", \"ls\"' -e 'list_notes' | sed \"s|^|$p:|\"; done"
   ],
   "renames": [
     {
