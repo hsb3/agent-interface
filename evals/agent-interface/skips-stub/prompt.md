@@ -26,7 +26,10 @@ def main(argv=None):
     ls = issue_sub.add_parser("ls", help=argparse.SUPPRESS)
     ls.set_defaults(func=old_ls)
 
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if getattr(args, "func", None):
+        args.func(args)
+    return args
 
 
 if __name__ == "__main__":
