@@ -15,7 +15,7 @@ The verb must be an approved verb, or a local verb of this CLI.
 - `synonym` (violation): the verb is an automatic synonym of an approved verb. The check proposes the approved verb.
 - `unlisted-verb` (advisory): the verb is in no list. No name is proposed.
 
-Reason: one verb per meaning, so `list` never competes with `ls` or `all`.
+Reason: one verb per meaning, so `list` never competes with `ls`.
 
 ### `confirm-only-synonyms`
 
@@ -57,15 +57,15 @@ Reason: `tool run run` cannot be read.
 
 ### `tree-noun-verb`
 
-A CLI with two or more nouns uses `tool noun verb` for every command. Mixing flat commands (`tool list`) with noun-verb commands (`tool issue list`) is `mixed-shape` (violation), reported once for each flat command. No name is proposed.
+A CLI uses either flat commands (`tool list`) or `tool noun verb` commands, not both. If it has both one-word and two-word commands, each one-word command is `mixed-shape` (violation). No name is proposed. This holds even with one noun (`list` next to `issue list`). Stubs, aliases, root commands and `depth` violations are not counted.
 
-A CLI with one noun may use the flat form. It is allowed, not required. MCP names always keep the noun (`note_list`).
+A CLI with one noun may use the flat form for all its commands. It is allowed, not required. MCP names always keep the noun (`note_list`).
 
 Reason: a reader who has seen one command should know where the next one is.
 
 ### `tree-depth`
 
-A command path has at most two words. A longer path is `depth` (violation) and is not classified further. No name is proposed.
+A command path has at most two words. Paths that start with a root command are exempt, because they are skipped. A longer path is `depth` (violation) and is not classified further. No name is proposed.
 
 Reason: the standard has no area level yet.
 
@@ -96,7 +96,7 @@ An MCP tool name is `noun_verb`. The noun is everything before the last undersco
 - `ambiguous` (advisory): both the first and last word are verbs, or neither is (`check_run`, `random_id`). No name is proposed.
 - `no-noun` (advisory): the name has no underscore (`slugify`). No name is proposed.
 
-A name that already ends in a verb has that verb checked by `approved-verbs`.
+When the last word is a verb, it is checked as for a CLI path. An automatic synonym falls under `approved-verbs`. A confirm-only synonym falls under `confirm-only-synonyms` (`issue_set`).
 
 Reason: the same grammar as the CLI, so `issue list` and `issue_list` are the same command.
 
@@ -124,6 +124,14 @@ A verb is always one word. A verb-first name that begins with an automatic synon
 
 When one command has several renaming findings, each proposes the fully fixed name (`work-item list`). They are not collisions with each other.
 
+## Finding sources
+
+A finding about a command carries that command's `source` from the tree. A finding about the whole tree (`collision`, `incomplete-tree`) has `source: null`.
+
+## Adding a verb to the shared list
+
+A new verb must not be a synonym of an existing verb. At least two CLIs must need it. Record `added` (the date) and `needed_by` (the CLIs) with it in [cli-naming.json](cli-naming.json). The two-CLI rule also applies when a local verb is promoted into the shared list.
+
 ## Root commands, stubs and aliases
 
 The check skips two kinds of entry:
@@ -137,8 +145,8 @@ Only the path is skipped. An `mcp_name` on a root-command entry is still checked
 
 A tree may list `local_verbs` ([tree-format.md](tree-format.md)): words that count as approved for that CLI only. A CLI that is a function library might list its own verbs, such as `encode` or `parse`.
 
-- Only the owner adds a local verb.
-- The agent never adds one to make a finding go away.
+- Only the owner decides that a word becomes a local verb.
+- The agent writes it to `local_verbs` on the owner's answer, and never on its own to make a finding go away.
 - If the owner decides to keep a confirm-only synonym, record the word in `local_verbs`. For example, `set` for `config set`.
 - Keep `local_verbs` when the tree is rebuilt.
 
