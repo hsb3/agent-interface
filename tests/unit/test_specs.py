@@ -1,4 +1,8 @@
-"""Every OpenSpec scenario names an existing eval case, and every eval case is traced to one."""
+"""Every OpenSpec scenario names one eval case, and every eval case is traced to one.
+
+Eval files must exist for living specs and approved changes; a draft change may name
+cases not written yet.
+"""
 
 from pathlib import Path
 import re
@@ -15,6 +19,14 @@ def spec_files() -> list[Path]:
                     if "archive" not in p.relative_to(ROOT / "openspec/changes").parts]
 
 
+def approved(spec: Path) -> bool:
+    if (ROOT / "openspec/specs") in spec.parents:
+        return True
+    change = ROOT / "openspec/changes" / spec.relative_to(ROOT / "openspec/changes").parts[0]
+    design = change / "design.md"
+    return design.is_file() and re.search(r"^Status: Approved\b", design.read_text(), re.M) is not None
+
+
 def test_scenarios_name_existing_eval_cases() -> None:
     files = spec_files()
     assert files, "No specs under openspec/specs or openspec/changes"
@@ -23,7 +35,8 @@ def test_scenarios_name_existing_eval_cases() -> None:
             evals = EVAL.findall(scenario)
             title = scenario.splitlines()[0]
             assert len(evals) == 1, f"{spec}: {title} needs exactly one EVAL line"
-            assert (ROOT / evals[0] / "prompt.md").is_file(), f"{spec}: {title}: missing {evals[0]}"
+            if approved(spec):
+                assert (ROOT / evals[0] / "prompt.md").is_file(), f"{spec}: {title}: missing {evals[0]}"
 
 
 def test_every_eval_case_is_traced_to_a_scenario() -> None:
