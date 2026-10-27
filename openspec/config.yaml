@@ -1,0 +1,9 @@
+schema: plugin-change
+
+context: |
+  This repository is an agent plugin for Claude Code and Codex (Antigravity
+  untested). Behavior is what a host user sees: which requests route to a skill,
+  what the skill reads, asks, writes and replies, and what reviewers report.
+  Every spec scenario names the eval case that proves it with an `EVAL` line.
+  Shipped files are packed from an allowlist; hooks, MCP servers and apps are
+  refused unless a change's design adds them.

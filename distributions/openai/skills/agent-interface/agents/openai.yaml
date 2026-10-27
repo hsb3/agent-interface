@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agent Interface"
+  short_description: "Review a file against the bundled checklist"
+  icon_small: "./assets/icon.svg"
+  icon_large: "./assets/icon.svg"
+  brand_color: "#1B6EF3"

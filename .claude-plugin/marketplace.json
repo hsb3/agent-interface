@@ -1,0 +1,14 @@
+{
+  "name": "agent-interface",
+  "owner": {
+    "name": "Henry S. Burden III"
+  },
+  "description": "Design and audit efficient, agent-friendly CLIs and skills with source-backed guidance and bounded offline checks.",
+  "plugins": [
+    {
+      "name": "agent-interface",
+      "source": "./distributions/claude",
+      "description": "Design and audit efficient, agent-friendly CLIs and skills with source-backed guidance and bounded offline checks."
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "agent-interface",
+  "version": "0.1.0",
+  "description": "Design and audit efficient, agent-friendly CLIs and skills with source-backed guidance and bounded offline checks.",
+  "author": {
+    "name": "Henry S. Burden III"
+  },
+  "homepage": "https://github.com/hsb3/agent-interface",
+  "repository": "https://github.com/hsb3/agent-interface",
+  "license": "MIT",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Agent Interface",
+        "shortDescription": "One-line picker summary",
+        "longDescription": "Design and audit efficient, agent-friendly CLIs and skills with source-backed guidance and bounded offline checks.",
+        "developerName": "Henry S. Burden III",
+        "category": "Developer Tools",
+        "capabilities": [
+          "Review a file against a checklist"
+        ],
+        "websiteURL": "https://github.com/hsb3/agent-interface",
+        "supportURL": "https://github.com/hsb3/agent-interface/issues",
+        "privacyPolicyURL": "https://github.com/hsb3/agent-interface/blob/main/docs/privacy.md",
+        "composerIcon": "./assets/icon.svg",
+        "logo": "./assets/icon.svg"
+      }
+    }
+  }
+}

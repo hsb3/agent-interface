@@ -1,0 +1,20 @@
+{
+  "name": "agent-interface",
+  "interface": {
+    "displayName": "Agent Interface"
+  },
+  "plugins": [
+    {
+      "name": "agent-interface",
+      "source": {
+        "source": "local",
+        "path": "./distributions/openai"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

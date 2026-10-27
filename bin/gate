@@ -1,0 +1,6 @@
+#!/bin/sh
+# One gate for local and CI runs. Extra args go to pytest, e.g. bin/gate tests/integration
+set -eu
+cd "$(dirname "$0")/.."
+exec uv run --no-project --python 3.12 --with 'pytest>=8,<9' --with 'pyyaml>=6,<7' \
+  python -m pytest "${@:-tests/unit}"
