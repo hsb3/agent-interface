@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Check a CLI command tree against the noun-verb naming standard: tree.py check <tree.json>."""
 import json
+import os
 from pathlib import Path
 import sys
 
@@ -29,13 +30,13 @@ def need(ok, message):
 
 
 def is_words(value):
-    return isinstance(value, list) and all(isinstance(w, str) and w for w in value)
+    return isinstance(value, list) and all(isinstance(w, str) and w.split() == [w] for w in value)
 
 
 def load_tree(name):
     try:
         t = json.loads(Path(name).read_text(encoding="utf-8"))
-    except (OSError, ValueError) as e:
+    except (OSError, ValueError, RecursionError) as e:
         raise InvalidTree(f"cannot read {name}: {e}")
     need(isinstance(t, dict), "the tree must be a JSON object")
     need(isinstance(t.get("cli"), str), "cli must be a string")
@@ -54,14 +55,16 @@ def load_tree(name):
             need(key in c, f"{where} is missing {key}")
         need(c["path"] is None or (is_words(c["path"]) and c["path"]),
              f"{where}.path must be null or a non-empty list of words")
-        need(c["mcp_name"] is None or isinstance(c["mcp_name"], str),
-             f"{where}.mcp_name must be null or a string")
+        m = c["mcp_name"]
+        need(m is None or (isinstance(m, str) and all(m.split("_"))),
+             f"{where}.mcp_name must be null or words joined by single underscores")
         need(c["path"] is not None or c["mcp_name"] is not None,
              f"{where} needs a path or an mcp_name")
         need(c["kind"] in KINDS, f"{where}.kind must be one of {', '.join(KINDS)}")
-        need(c["source"] in refs, f"{where}.source must be one of the sources[].ref values")
+        need(isinstance(c["source"], str) and c["source"] in refs, f"{where}.source must be one of the sources[].ref values")
         if c["kind"] != "command":
-            need(is_words(c.get("renamed_to")), f"{where} of kind {c['kind']} needs a renamed_to list")
+            need(is_words(c.get("renamed_to")) and c["renamed_to"],
+                 f"{where} of kind {c['kind']} needs a non-empty renamed_to list")
     return t
 
 
@@ -197,11 +200,14 @@ def main(argv):
             return fail("usage", "usage: tree.py check <tree.json>")
         t = load_tree(argv[1])
         env = check(t, json.loads(VOCAB.read_text(encoding="utf-8")))
+        sys.stdout.write(json.dumps(env, indent=2) + "\n")
+        sys.stdout.flush()
     except InvalidTree as e:
         return fail("invalid-tree", str(e))
     except Exception as e:
+        # A dead stdout would fail again in the shutdown flush and print "Exception ignored".
+        os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
         return fail("internal-error", f"{type(e).__name__}: {e}")
-    print(json.dumps(env, indent=2))
     return 0 if env["ok"] else 1
 
 
