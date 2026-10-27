@@ -20,7 +20,7 @@ The command-tree file lists every command and MCP tool name of one CLI. An agent
 | `mcp_name` | string, or `null` | yes (key) | The MCP tool name. At least one of `path` and `mcp_name` is non-null. |
 | `kind` | `"command"`, `"alias"` or `"stub"` | yes | What the entry is. |
 | `source` | string | yes | One of the `sources[].ref` values: the source this command was read from. Findings about the command report it. |
-| `renamed_to` | array of words | for `alias` and `stub` | The new argv. |
+| `renamed_to` | array of words | for `alias` and `stub` | The new argv, starting with the CLI name. |
 
 ## Rules
 
@@ -42,7 +42,7 @@ The command-tree file lists every command and MCP tool name of one CLI. An agent
   "local_verbs": ["archive"],
   "commands": [
     {"path": ["note", "list"], "mcp_name": "note_list", "kind": "command", "source": "src/notes/cli.py"},
-    {"path": ["note", "ls"], "mcp_name": null, "kind": "stub", "source": "src/notes/cli.py", "renamed_to": ["note", "list"]},
+    {"path": ["note", "ls"], "mcp_name": null, "kind": "stub", "source": "src/notes/cli.py", "renamed_to": ["notes", "note", "list"]},
     {"path": null, "mcp_name": "note_search", "kind": "command", "source": "toolkit.json"}
   ]
 }
