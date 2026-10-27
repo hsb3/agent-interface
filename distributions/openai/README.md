@@ -2,7 +2,7 @@
 
 <h1 align="center">Agent Interface</h1>
 
-<p align="center">Design and audit efficient, agent-friendly CLIs and skills with source-backed guidance and bounded offline checks.</p>
+<p align="center">Design and check CLI command and MCP tool names against a noun-verb standard, and plan renames that list affected callers.</p>
 
 ## Install
 
@@ -31,16 +31,18 @@ Start a new session after installing. Antigravity support is untested; see
 
 ## Try it
 
-In Claude Code, run `/agent-interface:agent-interface notes.md`. In Codex, pick the
-Agent Interface skill and name a file. The skill writes `agent-interface-report.md`
-and replies with its path.
+Ask your agent "check my CLI's command names" and name the CLI, for example
+`mytool`. In Claude Code you can also run `/agent-interface:agent-interface`; in
+Codex, pick the Agent Interface skill. The agent lists the CLI's commands, runs
+the check, and replies with the number of violations and advisories and the
+names to change.
 
 ## Skills
 
 <table>
   <thead><tr><th align="left">Skill</th><th align="left">Use it to…</th></tr></thead>
   <tbody>
-    <tr valign="top"><td width="200"><img src="skills/agent-interface/assets/icon.svg" width="20" height="20" alt="" align="top">&nbsp;<a href="skills/agent-interface/SKILL.md">Agent Interface</a></td><td>Review one file against the bundled checklist.</td></tr>
+    <tr valign="top"><td width="200"><img src="skills/agent-interface/assets/icon.svg" width="20" height="20" alt="" align="top">&nbsp;<a href="skills/agent-interface/SKILL.md">Agent Interface</a></td><td>Design and check CLI command and MCP tool names against a noun-verb standard, and plan renames that list affected callers.</td></tr>
   </tbody>
 </table>
 

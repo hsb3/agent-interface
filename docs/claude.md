@@ -5,7 +5,7 @@ Invoke skills as `/agent-interface:<skill>`. Claude substitutes
 a skill's `references/` and `scripts/` against the skill folder. Never guess a
 cache path or read another installed copy.
 
-Write reports to the working directory, not the session scratchpad. Resource
+The skill writes only into the target CLI's repository: `docs/cli-tree.json`, and `docs/cli-renames.json` when planning renames. Resource
 reads outside the project go through the normal permission prompts; this plugin
 installs no hooks and no permission rules.
 

@@ -103,6 +103,9 @@ Settled 2026-10-27 during the build, where the rules above left a case open:
 - **`collision`:** `path` is the target name, `source` is `null`, `rule` names the collision rule. "Already a command" covers every `path` and `mcp_name` in the tree, including stubs, aliases and root commands, since a stubbed name is never reused.
 - **MCP nouns:** not checked against noun-form rules in v1. The only noun change in an MCP name is the trailing-`s` removal in a verb-first suggestion.
 - **Verb-first name starting with a synonym:** an automatic synonym is replaced by its verb in the suggestion (`ls_notes` → `note_list`), as one `verb-first` finding. A confirm-only synonym (`show_notes`) gives a `verb-first` finding with no proposed name, plus a `confirm-synonym` advisory.
+- **Local verbs in MCP names** count as verbs, so `encode_list` in a CLI with `local_verbs: ["encode"]` is `ambiguous`.
+- **Root commands:** the whole entry is skipped only by its `path`; an `mcp_name` on a root-command entry is still classified.
+- **One name space:** collisions compare CLI paths and MCP names as one set of names.
 
 ## Renames
 
