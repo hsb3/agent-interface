@@ -5,22 +5,22 @@ When asked to check a named CLI, the skill SHALL write that CLI's command tree t
 
 #### Scenario: Violations and advisories
 - **WHEN** the user asks to check a toolkit whose CLI commands include `label ls`, `issue ls`, `issue all`, `report frobnicate` and `config set`, and whose catalog names a tool `list_notes`
-- **THEN** the reply lists `label ls` as a violation with the proposed name `label list`, `list_notes` as verb-first with the proposed name `note_list`, a collision on `issue list` with no proposed name for `issue ls` or `issue all`, `report frobnicate` as an advisory with no proposed name, and `config set` as an advisory that needs the owner's decision, with no proposed name
+- **THEN** the reply lists `label ls` as a violation with the proposed name `label list`, `list_notes` as verb-first with the proposed name `note_list`, a collision on `issue list` with no proposed name for `issue ls` or `issue all`, `report frobnicate` as an advisory with no proposed name, and `config set` as an advisory that needs the owner's decision, with no proposed name, and `docs/cli-tree.json` exists in the CLI's repository and the reply's findings come from running the bundled check on it
 - **EVAL** evals/agent-interface/reports-violations-and-advisories
 
 #### Scenario: One-noun CLI in flat form
 - **WHEN** the CLI has one noun and its commands are `list`, `get` and `create` with no noun level
-- **THEN** the reply has no violation for the missing noun level
+- **THEN** the reply has no violation for the missing noun level, and `docs/cli-tree.json` exists in the CLI's repository and the reply's findings come from running the bundled check on it
 - **EVAL** evals/agent-interface/accepts-flat-one-noun-cli
 
 #### Scenario: Incomplete command tree
 - **WHEN** the skill could read only part of the CLI's commands
-- **THEN** the reply says the tree is incomplete and names the sources that were read
+- **THEN** the reply says the tree is incomplete and names the sources that were read, and `docs/cli-tree.json` exists in the CLI's repository and the reply's findings come from running the bundled check on it
 - **EVAL** evals/agent-interface/reports-incomplete-tree
 
 #### Scenario: Existing rename stub
 - **WHEN** the CLI has a hidden command `issue ls` that only prints `renamed to: tool issue list` and exits 2
-- **THEN** the reply does not flag `issue ls`
+- **THEN** the reply does not flag `issue ls`, and `docs/cli-tree.json` exists in the CLI's repository and the reply's findings come from running the bundled check on it
 - **EVAL** evals/agent-interface/skips-stub
 
 ### Requirement: Plan renames with their callers
