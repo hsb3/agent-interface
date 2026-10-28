@@ -17,7 +17,7 @@ def main(argv=None):
     nouns = parser.add_subparsers(dest="noun", required=True)
 
     issue = nouns.add_parser("issue").add_subparsers(dest="verb", required=True)
-    issue.add_parser("ls", help="list open issues")
+    issue.add_parser("ls", aliases=["all"], help="list open issues")
     get = issue.add_parser("get", help="show one issue")
     get.add_argument("id")
 

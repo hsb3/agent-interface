@@ -20,7 +20,7 @@ The command-tree file lists every command and MCP tool name of one CLI. An agent
 | `mcp_name` | string, or `null` | yes (key) | The MCP tool name, with no empty word between underscores. At least one of `path` and `mcp_name` is non-null. |
 | `kind` | `"command"`, `"alias"` or `"stub"` | yes | What the entry is. |
 | `source` | string | yes | One of the `sources[].ref` values: the source this command was read from. Findings about the command report it. |
-| `renamed_to` | non-empty array of words | for `alias` and `stub` | The new argv, for example `["notes", "note", "list"]`; for a framework alias, the argv of the command it runs. |
+| `renamed_to` | non-empty array of words | for `alias` and `stub` | The new argv, for example `["notes", "note", "list"]`; for a framework alias, the argv of the command it runs, CLI name first (`["tool", "issue", "list"]`). |
 
 ## Rules
 
