@@ -29,8 +29,8 @@ No task starts before design.md says `Status: Approved`.
 ## 3. Verify
 
 - [x] 3.1 `python3 scripts/pack_plugin.py --sync` and `bin/gate`
-- [ ] 3.2 Verify tier from TESTING.md; one host record row per host
-- [ ] 3.3 Run the check and fix on the notes toolkit (`/Users/henry/Developer/agent-toolkits/toolkits/notes`) as the first real remediation, and keep its plan as evidence. Applying the plan is agent-toolkits' work, done when it adopts this standard (hsb3/agent-toolkits#97)
+- [x] 3.2 Verify tier from TESTING.md; one host record row per host
+- [x] 3.3 Run the check and fix on the notes toolkit (`/Users/henry/Developer/agent-toolkits/toolkits/notes`) as the first real remediation, and keep its plan as evidence. Applying the plan is agent-toolkits' work, done when it adopts this standard (hsb3/agent-toolkits#97). Evidence: `~/.local/share/agent-artifacts/agent-interface/2026-10-27-notes-remediation/`; the gap it found is issue #6
 
 ## 4. Archive
 

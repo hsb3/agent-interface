@@ -26,3 +26,6 @@ release; record each run below.
 
 | Host | Version | Date | Commit | Install | Behavior | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| Claude Code | 2.1.312 | 2026-10-27 | 5e23e37 | not run | fail: 3 of 10 cases pass, mean Δ +0.17, $2.82 | Graders that check the workspace or transcript use `llm` with the default `focus: last_message`, so they cannot pass; `reviews-named-file` is the retired reviewer case kept until archive. |
+| Codex | codex-cli 0.163.0 | 2026-10-27 | 5e23e37 | pass | pass: live `codex exec` turn discovered and read the skill | `PLUGIN_LIVE=1 bin/gate tests/integration`: 6 passed. |
+| Claude Code | 2.1.312 | 2026-10-28 | d82ed2d | not run | pass: 9 of 10 cases, mean Δ +0.52, $2.76; `reports-incomplete-tree` then 3 of 3 after its rubric was reworded | `reviews-named-file` fails as expected: the retired reviewer case, deleted at archive (task 4.3). Trace shows `${CLAUDE_PLUGIN_ROOT}` substituted in the skill body. |
