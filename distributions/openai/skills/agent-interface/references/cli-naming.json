@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "verbs": {
+    "list": {
+      "means": "many records, paged"
+    },
+    "get": {
+      "means": "exactly one result or an error, by any unique key"
+    },
+    "search": {
+      "means": "free-text query, ranked results",
+      "added": "2026-10-27",
+      "needed_by": [
+        "vault",
+        "notes"
+      ]
+    },
+    "create": {
+      "means": "make a new record"
+    },
+    "update": {
+      "means": "change an existing record"
+    },
+    "delete": {
+      "means": "remove a record"
+    },
+    "run": {
+      "means": "execute something once and wait"
+    },
+    "start": {
+      "means": "begin something that keeps running"
+    },
+    "stop": {
+      "means": "end something started"
+    },
+    "check": {
+      "means": "inspect and report problems, change nothing"
+    },
+    "sync": {
+      "means": "make two copies match"
+    },
+    "import": {
+      "means": "bring data in from a file or service"
+    },
+    "export": {
+      "means": "write data out to a file or service"
+    }
+  },
+  "synonyms": {
+    "ls": "list",
+    "all": "list",
+    "view": "get",
+    "info": "get",
+    "describe": "get",
+    "read": "get",
+    "new": "create",
+    "make": "create",
+    "modify": "update",
+    "patch": "update",
+    "rm": "delete",
+    "remove": "delete",
+    "del": "delete",
+    "destroy": "delete",
+    "exec": "run",
+    "execute": "run",
+    "do": "run",
+    "up": "start",
+    "launch": "start",
+    "down": "stop",
+    "kill": "stop",
+    "halt": "stop",
+    "lint": "check",
+    "validate": "check",
+    "verify": "check",
+    "load": "import",
+    "ingest": "import",
+    "dump": "export"
+  },
+  "confirm_synonyms": {
+    "find": "list",
+    "show": "get",
+    "cat": "get",
+    "add": "create",
+    "set": "update",
+    "edit": "update",
+    "pull": "sync",
+    "push": "sync",
+    "refresh": "sync",
+    "save": "export"
+  },
+  "short_forms": {
+    "repo": "repository"
+  },
+  "plural_exceptions": [
+    "status",
+    "alias",
+    "process",
+    "address"
+  ],
+  "root_commands": [
+    "help",
+    "version",
+    "completion",
+    "serve",
+    "setup",
+    "init",
+    "doctor",
+    "update"
+  ]
+}

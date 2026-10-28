@@ -103,6 +103,12 @@ def test_claude_adapters_are_registered_and_resolve() -> None:
         "Register Claude adapters, not shared personas")
 
 
+def test_every_persona_has_claude_adapter() -> None:
+    missing = sorted({p.name for p in (ROOT / "agents").glob("*.md")}
+                     - {p.name for p in adapters()})
+    assert not missing, f"Add .claude-plugin/agents/ adapters for: {missing}"
+
+
 @pytest.mark.parametrize("adapter", adapters(), ids=lambda p: p.stem)
 def test_claude_adapter_wraps_its_persona(adapter) -> None:
     config = frontmatter(adapter)

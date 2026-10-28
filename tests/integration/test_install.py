@@ -64,14 +64,14 @@ def test_codex_reads_installed_skill(codex_home: dict, tmp_path: Path) -> None:
     assert auth.is_file(), "Log in to Codex first"
     # Symlink, not copy: the credential stays in one place and leaves with the temp home.
     (Path(codex_home["CODEX_HOME"]) / "auth.json").symlink_to(auth)
-    reference = next((p for p in sorted((ROOT / "resources").glob("*.md")) if p.name != "README.md"), None)
-    bullets = [line[2:].strip() for line in reference.read_text().splitlines()
-               if line.startswith("- ")] if reference else []
-    if not bullets:
-        pytest.skip("resources/ has no bulleted .md file to probe")
+    # A skip here would hide the whole live tier, so a missing probe file fails instead.
+    probes = [(p, [line[2:].strip() for line in p.read_text().splitlines() if line.startswith("- ")])
+              for p in sorted((ROOT / "skills" / SKILL / "references").glob("*.md"))]
+    reference, bullets = next(((p, b) for p, b in probes if b), (None, []))
+    assert reference, f"skills/{SKILL}/references/ has no bulleted .md file to probe"
     marker = bullets[0]
     prompt = (f"Use the installed ${NAME}:{SKILL} skill only to locate the plugin's bundled "
-              f"resources/{reference.name}. Reply with that file's first bullet, verbatim. "
+              f"skills/{SKILL}/references/{reference.name}. Reply with that file's first bullet, verbatim. "
               "Do not review any file and do not write files.")
     out = run("codex", "exec", "--skip-git-repo-check", "--sandbox", "read-only",
               "-C", str(tmp_path), prompt, env=codex_home, timeout=600)

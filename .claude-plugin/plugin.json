@@ -2,7 +2,7 @@
   "name": "agent-interface",
   "displayName": "Agent Interface",
   "version": "0.1.0",
-  "description": "Design and audit efficient, agent-friendly CLIs and skills with source-backed guidance and bounded offline checks.",
+  "description": "Design and check CLI command and MCP tool names against a noun-verb standard, and plan renames that list affected callers.",
   "author": {
     "name": "Henry S. Burden III"
   },
@@ -12,8 +12,5 @@
   "icon": "./assets/icon.png",
   "documentationUrl": "https://github.com/hsb3/agent-interface/blob/main/docs/claude.md",
   "supportUrl": "https://github.com/hsb3/agent-interface/issues",
-  "privacyPolicyUrl": "https://github.com/hsb3/agent-interface/blob/main/docs/privacy.md",
-  "agents": [
-    "./.claude-plugin/agents/agent-interface-reviewer.md"
-  ]
+  "privacyPolicyUrl": "https://github.com/hsb3/agent-interface/blob/main/docs/privacy.md"
 }

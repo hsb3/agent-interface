@@ -9,7 +9,8 @@
   schema (`openspec new change <name>`). Code changes wait until its `design.md`
   says `Status: Approved`. Bug fixes need no change.
 - Every spec scenario ends with `- **EVAL** evals/<skill>/<case>`; every eval case
-  is named by a scenario. `bin/gate` enforces both directions.
+  is named by a scenario. `bin/gate` enforces both directions. Named cases must
+  exist once the change's `design.md` is Approved; a draft may name cases not yet written.
 - Skills: folder name equals frontmatter `name`; body under 24,000 bytes; each has
   `agents/openai.yaml` and `assets/icon.svg`.
 - `resources/` is canonical: shared standards read at run time by more than one
