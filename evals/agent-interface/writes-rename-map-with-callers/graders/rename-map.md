@@ -1,7 +1,8 @@
 ---
 type: llm
+focus: { source: file, path: docs/cli-renames.json }
 weight: 1
 ---
 
-The file `docs/cli-renames.json` exists in the workspace, and one of its renames
-maps the old name `issue ls` to the new name `issue list`.
+This is a rename plan. One of its renames maps the old name `issue ls` to the
+new name `issue list`.

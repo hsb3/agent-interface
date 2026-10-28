@@ -1,6 +1,8 @@
 ---
-type: llm
+type: tool_used
+tool: Skill
+input_match: '"skill"\s*:\s*"(?:[\w-]+:)?agent-interface"'
+min: 0
+max: 0
 weight: 1
 ---
-
-The agent does not invoke the agent-interface skill.

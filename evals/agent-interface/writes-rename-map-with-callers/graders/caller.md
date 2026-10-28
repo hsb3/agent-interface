@@ -1,9 +1,6 @@
 ---
-type: llm
+type: regex
+pattern: 'scripts/standup\.sh:3"'
+target: { source: file, path: docs/cli-renames.json }
 weight: 1
 ---
-
-In `docs/cli-renames.json`, the callers of the `issue ls` rename include the
-script's location as `file:line`, ending in `scripts/standup.sh:3`. Line 3 is the
-line that runs `tool issue ls`. A different line number, or no entry for that
-script, fails.

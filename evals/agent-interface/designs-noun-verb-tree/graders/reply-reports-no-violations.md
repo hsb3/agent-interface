@@ -3,7 +3,5 @@ type: llm
 weight: 1
 ---
 
-The agent ran the naming check on `docs/cli-tree.json` during the run, the
-check's own output shows no violations, and the reply says the check found no
-violations. A reply that says "no violations" without such a run, or contrary
-to the check's output, fails.
+The reply says the naming check found no violations in the designed commands.
+A reply that reports violations, or never reports a check result, fails.
