@@ -34,7 +34,7 @@ No task starts before design.md says `Status: Approved`.
 
 ## 4. Archive
 
-- [ ] 4.1 Keep `evals/agent-interface/reviews-named-file` until archive
-- [ ] 4.2 `openspec archive cli-naming-standard`
-- [ ] 4.3 Delete `evals/agent-interface/reviews-named-file`; update the Purpose line in `openspec/specs/agent-interface/spec.md`
-- [ ] 4.4 `bin/gate`
+- [x] 4.1 Keep `evals/agent-interface/reviews-named-file` until archive
+- [x] 4.2 `openspec archive cli-naming-standard`
+- [x] 4.3 Delete `evals/agent-interface/reviews-named-file`; update the Purpose line in `openspec/specs/agent-interface/spec.md`
+- [x] 4.4 `bin/gate`
