@@ -7,7 +7,11 @@
   `python3 scripts/pack_plugin.py --sync`; marketplaces install those folders.
 - A new feature or behavior change is an OpenSpec change on the `plugin-change`
   schema (`openspec new change <name>`). Code changes wait until its `design.md`
-  says `Status: Approved`. Bug fixes need no change.
+  says `Status: Approved`. Bug fixes need no change. The full workflow, lineage
+  and brand-kit notes are in [DEVELOPMENT.md](DEVELOPMENT.md).
+- Work queues are GitHub issues: `bug` is the rework queue, fixed directly;
+  `enhancement` is the feature queue, and each accepted request becomes an
+  OpenSpec change before code.
 - Every spec scenario ends with `- **EVAL** evals/<skill>/<case>`; every eval case
   is named by a scenario. `bin/gate` enforces both directions. Named cases must
   exist once the change's `design.md` is Approved; a draft may name cases not yet written.
