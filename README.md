@@ -42,12 +42,13 @@ names to change.
 <table>
   <thead><tr><th align="left">Skill</th><th align="left">Use it to…</th></tr></thead>
   <tbody>
-    <tr valign="top"><td width="200"><img src="skills/agent-interface/assets/icon.svg" width="20" height="20" alt="" align="top">&nbsp;<a href="skills/agent-interface/SKILL.md">Agent Interface</a></td><td>Design and check CLI command and MCP tool names against a noun-verb standard, and plan renames that list affected callers.</td></tr>
+    <tr valign="top"><td width="200"><img src="skills/agent-interface/assets/icon.svg" width="20" height="20" alt="" align="top">&nbsp;<a href="https://github.com/hsb3/agent-interface/blob/main/skills/agent-interface/SKILL.md">Agent Interface</a></td><td>Design and check CLI command and MCP tool names against a noun-verb standard, and plan renames that list affected callers.</td></tr>
   </tbody>
 </table>
 
 ## Learn more
 
+- [Project site](https://hsb3.github.io/agent-interface/)
 - [Supported hosts](docs/harnesses.md), [Claude Code notes](docs/claude.md), [Codex notes](docs/codex.md)
 - [Privacy](docs/privacy.md) and [verifying releases](docs/releases.md)
 - [Testing and host records](https://github.com/hsb3/agent-interface/blob/main/TESTING.md)
