@@ -3,7 +3,7 @@ max_turns: 40
 allowed_tools: [Read, Glob, Grep, Skill, Write, Edit, Bash]
 ---
 
-Create these two files in the current directory with exactly this content.
+Create these three files in the current directory with exactly this content.
 
 `tool.py`:
 
@@ -17,7 +17,7 @@ def main(argv=None):
     nouns = parser.add_subparsers(dest="noun", required=True)
 
     issue = nouns.add_parser("issue").add_subparsers(dest="verb", required=True)
-    issue.add_parser("ls", help="list open issues")
+    issue.add_parser("ls", aliases=["all"], help="list open issues")
     get = issue.add_parser("get", help="show one issue")
     get.add_argument("id")
 
@@ -36,6 +36,14 @@ if __name__ == "__main__":
 #!/bin/sh
 echo "Open issues:"
 tool issue ls
+```
+
+`tests/test_tool.py`:
+
+```python
+from tool import main
+
+main(["issue", "ls"])
 ```
 
 Then fix the command names in the CLI in tool.py. For callers, search only this

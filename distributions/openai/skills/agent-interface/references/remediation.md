@@ -17,7 +17,7 @@ A path is the chain of names from the root parser down to a leaf (a command with
 
 **argparse**
 - `p.add_subparsers()` opens a level; each `sub.add_parser("name")` adds a word under the parser that owns `sub`. Follow the variables: `issue = nouns.add_parser("issue").add_subparsers()` then `issue.add_parser("ls")` is `["issue", "ls"]`.
-- `aliases=["x"]` gives each alias its own entry, the same path with the last word replaced.
+- `aliases=["x"]` gives each alias its own entry: the same path with the last word replaced, `kind: "alias"`, and `renamed_to` the full argv of the command it aliases, CLI name first (`["tool", "issue", "list"]`).
 - The handler is the `set_defaults(func=...)` function, or the `if args.verb == ...` branch that runs it.
 
 **click**
@@ -27,14 +27,14 @@ A path is the chain of names from the root parser down to a leaf (a command with
 **commander**
 - `program.command("issue")` returns the new command; `issue.command("ls")` nests under it as `["issue", "ls"]`. Only the first word of `.command("get <id>")` is the name; `<id>` and `[x]` are arguments. `.addCommand(new Command("x"))` attaches a built command.
 - `.command("name", "description")` is a stand-alone executable subcommand: read its `<prog>-name` file as well.
-- `.alias("ls")` and `.aliases([...])` give each alias its own entry.
+- `.alias("ls")` and `.aliases([...])` give each alias its own entry, recorded as for argparse `aliases=`.
 
 ### Kind
 
 Read each handler:
 
 - It writes nothing to stdout, prints `renamed to: <argv>` on stderr and exits 2: `stub`. `renamed_to` is that argv split into words: `renamed to: tool issue list` gives `["tool", "issue", "list"]`.
-- It runs the new command and also prints `renamed to: <argv>`: `alias`, with `renamed_to` taken the same way.
+- It runs the new command and also prints `renamed to: <argv>`: `alias`, with `renamed_to` taken the same way. A framework alias (argparse `aliases=`, commander `.alias()`) is also `alias`, set as above.
 - Anything else: `command`. Hidden from help (`help=argparse.SUPPRESS`, a `metavar` that leaves a choice out, click `hidden=True`, commander `{ hidden: true }`) is a hint, not proof.
 
 ### Merging catalog and source
@@ -60,6 +60,7 @@ Run only on a fix run, after the check, for the violations whose `suggest` is no
 ### Roots
 
 - If the user names folders, search only those: no default roots, no crontab, no launchd.
+- Give `.` and any relative folder as an absolute path, written `~/...` when it is under the home folder (`~/Developer/tool` or `/work/tool`, never `.`). Run `rg` in a subshell from `/` (`(cd / && rg ...)`): it matches the exclusion globs against each path relative to the working directory, so run from inside `~/.claude` the `.claude/` part is lost and transcripts and plugin caches are searched.
 - Otherwise: `~/Developer`, `~/.claude`, `~/.codex`, `~/.claude.json`, `~/.zshrc`, `~/.zprofile`, `~/.bashrc`, `~/.bash_profile`, `~/.profile`, plus crontab and launchd (below). Leave out roots that do not exist.
 
 ### Exclusions
@@ -71,7 +72,7 @@ Run only on a fix run, after the check, for the violations whose `suggest` is no
 For each rename, all fixed strings:
 
 - space form: `<cli> <old path>`, for example `tool issue ls`;
-- argv-list form: `"tool", "issue", "ls"`;
+- argv-list form: the old path's words, `"issue", "ls"`. This also finds lists that start with the CLI name (`["tool", "issue", "ls"]`) and in-process calls that pass argv without it (`main(["issue", "ls"])`). For a one-word path, use `"tool", "ls"`; its in-process form `["ls"` also matches unrelated calls such as `run(["ls", "-la"])`, so it is searched only in the CLI's own repo, in a second `rg` run (below);
 - for an MCP rename, the old MCP name: `list_notes`.
 
 ### The command
@@ -79,26 +80,28 @@ For each rename, all fixed strings:
 One `rg` run covers every pattern of every rename:
 
 ```sh
-rg --hidden --line-number --fixed-strings --with-filename --no-heading --only-matching \
+(cd / && rg --hidden --line-number --fixed-strings --with-filename --no-heading --only-matching \
   -e '<pattern>' ... \
   --glob '!dev-memory.me' --glob '!**/.claude/projects/**' --glob '!**/.codex/sessions/**' \
   --glob '!**/.codex/archived_sessions/**' --glob '!**/.codex/plugins/cache/**' \
   --glob '!**/.claude/plugins/cache/**' --glob '!.git' --glob '!distributions' \
   --glob '!node_modules' --glob '!**/docs/cli-tree.json' --glob '!**/docs/cli-renames.json' \
-  <root> ...
+  <root> ...)
 ```
 
-Example, for `tool issue ls` over the current directory:
+Example, for `tool issue ls` over the repo at `/work/tool`:
 
 ```sh
-rg --hidden --line-number --fixed-strings --with-filename --no-heading --only-matching \
-  -e 'tool issue ls' -e '"tool", "issue", "ls"' \
+(cd / && rg --hidden --line-number --fixed-strings --with-filename --no-heading --only-matching \
+  -e 'tool issue ls' -e '"issue", "ls"' \
   --glob '!dev-memory.me' --glob '!**/.claude/projects/**' --glob '!**/.codex/sessions/**' \
   --glob '!**/.codex/archived_sessions/**' --glob '!**/.codex/plugins/cache/**' \
   --glob '!**/.claude/plugins/cache/**' --glob '!.git' --glob '!distributions' \
   --glob '!node_modules' --glob '!**/docs/cli-tree.json' --glob '!**/docs/cli-renames.json' \
-  .
+  /work/tool)
 ```
+
+When a renamed path has one word, run the same command a second time with only the `["<word>"` patterns and the CLI's repo root as the only root.
 
 - Put each pattern in single quotes, so the double quotes of the argv form need no escaping. Write a single quote inside a pattern as `'\''`.
 - `--only-matching` makes each line `file:line:<the pattern that matched>`. The pattern tells you which rename the match belongs to, and no file contents are printed.
@@ -151,9 +154,9 @@ Example, from a default-roots search:
 {
   "standard_version": 1,
   "search": [
-    "rg --hidden --line-number --fixed-strings --with-filename --no-heading --only-matching -e 'tool issue ls' -e '\"tool\", \"issue\", \"ls\"' -e 'list_notes' --glob '!dev-memory.me' --glob '!**/.claude/projects/**' --glob '!**/.codex/sessions/**' --glob '!**/.codex/archived_sessions/**' --glob '!**/.codex/plugins/cache/**' --glob '!**/.claude/plugins/cache/**' --glob '!.git' --glob '!distributions' --glob '!node_modules' --glob '!**/docs/cli-tree.json' --glob '!**/docs/cli-renames.json' ~/Developer ~/.claude ~/.codex ~/.claude.json ~/.zshrc ~/.zprofile",
-    "crontab -l 2>/dev/null | rg --line-number --only-matching --fixed-strings -e 'tool issue ls' -e '\"tool\", \"issue\", \"ls\"' -e 'list_notes' | sed 's/^/crontab:/'",
-    "find ~/Library/LaunchAgents -name '*.plist' 2>/dev/null | while IFS= read -r p; do plutil -convert xml1 -o - \"$p\" | rg --line-number --only-matching --fixed-strings -e 'tool issue ls' -e '\"tool\", \"issue\", \"ls\"' -e 'list_notes' | sed \"s|^|$p:|\"; done"
+    "(cd / && rg --hidden --line-number --fixed-strings --with-filename --no-heading --only-matching -e 'tool issue ls' -e '\"issue\", \"ls\"' -e 'list_notes' --glob '!dev-memory.me' --glob '!**/.claude/projects/**' --glob '!**/.codex/sessions/**' --glob '!**/.codex/archived_sessions/**' --glob '!**/.codex/plugins/cache/**' --glob '!**/.claude/plugins/cache/**' --glob '!.git' --glob '!distributions' --glob '!node_modules' --glob '!**/docs/cli-tree.json' --glob '!**/docs/cli-renames.json' ~/Developer ~/.claude ~/.codex ~/.claude.json ~/.zshrc ~/.zprofile)",
+    "crontab -l 2>/dev/null | rg --line-number --only-matching --fixed-strings -e 'tool issue ls' -e '\"issue\", \"ls\"' -e 'list_notes' | sed 's/^/crontab:/'",
+    "find ~/Library/LaunchAgents -name '*.plist' 2>/dev/null | while IFS= read -r p; do plutil -convert xml1 -o - \"$p\" | rg --line-number --only-matching --fixed-strings -e 'tool issue ls' -e '\"issue\", \"ls\"' -e 'list_notes' | sed \"s|^|$p:|\"; done"
   ],
   "renames": [
     {
