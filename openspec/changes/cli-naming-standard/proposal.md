@@ -10,7 +10,7 @@ The owner, a solo developer, uses this plugin in Claude Code and Codex whenever 
 - Asked to check a CLI, the skill writes the CLI's command tree to a file in that CLI's repo, runs the bundled check, and replies with the counts of violations and advisories and each finding.
 - The check flags synonym verbs (`issue ls` → `issue list`), verb-first MCP names (`list_notes` → `note_list`), nouns that are also verbs, and mixed flat and noun-verb commands, and proposes the rename for each.
 - Synonyms that can change meaning (`set`, `show`, `push`, `pull`, ...) and renames that would make two commands collide are reported without a proposed rename.
-- Root commands (`help`, `version`, `completion`, `serve`, `setup`, `init`) and existing rename stubs are never flagged.
+- Root commands (`help`, `version`, `completion`, `serve`, `setup`, `init`, `doctor`, `update`) and existing rename stubs are never flagged.
 - Asked to fix a CLI, the skill writes a rename plan into the CLI's repo listing each old name, the new name, and the location of every caller found in the folders the owner names. It does not edit the CLI.
 - Asked to design a new CLI, the skill writes a noun-verb command tree using the approved verbs and checks it before replying.
 - The skill never runs the CLI it checks; it reads the CLI's catalog and source.

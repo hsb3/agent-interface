@@ -153,7 +153,7 @@ ROWS = {
         0, []),
     "root commands skipped": (
         tree(cmd("help"), cmd("version"), cmd("serve"), cmd("completion zsh"), cmd("init ls"),
-             cmd("issue list")),
+             cmd("doctor"), cmd("update"), cmd("issue list")),
         0, []),
     "local_verbs honored": (
         tree(cmd("text encode", "text_encode"), cmd("config set"), cmd(mcp="encode_labels"),

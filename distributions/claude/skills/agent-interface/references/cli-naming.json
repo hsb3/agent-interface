@@ -72,7 +72,6 @@
     "lint": "check",
     "validate": "check",
     "verify": "check",
-    "doctor": "check",
     "load": "import",
     "ingest": "import",
     "dump": "export"
@@ -104,6 +103,8 @@
     "completion",
     "serve",
     "setup",
-    "init"
+    "init",
+    "doctor",
+    "update"
   ]
 }

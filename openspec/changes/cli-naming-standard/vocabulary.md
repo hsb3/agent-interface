@@ -15,7 +15,7 @@ The owner approved this on 2026-10-27 as the starting content for `skills/agent-
 | `run` | execute something once and wait | `exec`, `execute`, `do` | |
 | `start` | begin something that keeps running | `up`, `launch` | |
 | `stop` | end something started | `down`, `kill`, `halt` | |
-| `check` | inspect and report problems, change nothing | `lint`, `validate`, `verify`, `doctor` | |
+| `check` | inspect and report problems, change nothing | `lint`, `validate`, `verify` | |
 | `sync` | make two copies match | | `pull`, `push`, `refresh` |
 | `import` | bring data in from a file or service | `load`, `ingest` | |
 | `export` | write data out to a file or service | `dump` | `save` |
@@ -30,7 +30,7 @@ The owner approved this on 2026-10-27 as the starting content for `skills/agent-
 
 ## Root commands (never checked or renamed)
 
-`help`, `version`, `completion`, `serve`, `setup`, `init`. `serve` is exempt because MCP clients launch servers with `<tool> serve`.
+`help`, `version`, `completion`, `serve`, `setup`, `init`, `doctor`, `update`. `serve` is exempt because MCP clients launch servers with `<tool> serve`. `doctor` (the tool's own health check) and `update` (update the tool itself) are added on 2026-10-27 by the owner; `update` stays an approved verb under a noun (`note update`). Opening the MCP Inspector on the tool's own server is the flag `<tool> serve --inspect`, not an `inspect` command (owner, 2026-10-28).
 
 ## Local verbs
 
