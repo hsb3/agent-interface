@@ -103,7 +103,7 @@ When one command has several renaming findings, each proposes the fully fixed na
 
 ## Root commands, stubs and aliases
 
-The check skips entries of kind `stub` or `alias`, and entries whose CLI path starts with a root command. Root commands are never checked or renamed; `serve` is one because MCP clients launch servers with `<tool> serve`. To open the MCP Inspector on the tool's own server, use the flag `<tool> serve --inspect`, not an `inspect` command. Only the path is skipped: an `mcp_name` on a root-command entry is still checked.
+The check skips entries of kind `stub` or `alias`, and entries whose CLI path starts with a root command. Root commands are never checked or renamed; `serve` is one because MCP clients launch servers with `<tool> serve`. To open the MCP Inspector on the tool's own server, use the flag `<tool> serve --inspect`, not an `inspect` command. Only the path is skipped: an `mcp_name` on a root-command entry is still checked. A framework alias (argparse `aliases=`, commander `.alias()`) is recorded as `kind: alias` pointing at its command, so `ls` as an alias of `issue list` is skipped rather than proposed as a rename onto a command that already exists.
 
 ## Local verbs
 
