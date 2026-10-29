@@ -332,7 +332,16 @@ def test_contract_idempotency_key(tmp_path):
     message = assert_error(*run("contract", "create", f, "--idempotency-key", "k1"), "CONFLICT")
     assert "k1" in message
     assert out.read_text(encoding="utf-8") == text
+    # A dry run repeating the key returns the first contract.
+    write_tree(tmp_path, TRACKER)
+    assert ok(*run("contract", "create", f, "--idempotency-key", "k1", "--dry-run")) == {
+        "path": str(out), "contract": text}
+    # A key line that is not JSON is bad input, not a fault in the script.
+    out.write_text(text.replace('"k1"', '"k1'), encoding="utf-8")
+    assert_error(*run("contract", "create", f, "--idempotency-key", "k1"), "INVALID_ARGUMENT")
+    out.write_text(text, encoding="utf-8")
     # A new key writes the changed tree's contract.
+    write_tree(tmp_path, make_tree("tracker", "issue list"))
     ok(*run("contract", "create", f, "--idempotency-key", "k2"))
     assert "### issue create" not in out.read_text(encoding="utf-8")
 
@@ -539,6 +548,9 @@ MUTATIONS = {
         lambda res, reg: res["results"].append({"commands": ["item get"], "rule": "no-such-result-rule",
                                                 "status": "not_applicable", "reason": "x"}),
         "'no-such-result-rule' is not a rule in the standard"),
+    "command_kind that is not a string": (
+        lambda res, reg: find(res, "json-flag", "pass").update(command_kind=[]),
+        "command_kind must be one of"),
     "result names an uncovered command": (
         lambda res, reg: find(res, "secret-input", "pass")["commands"].append("item all"),
         "'item all' is not a covered command in the tree"),
@@ -587,6 +599,7 @@ BAD_INPUT = {
     "tree not an object": ("contract", "[]"),
     "tree without cli": ("contract", json.dumps({"commands": []})),
     "tree with a bad path": ("contract", json.dumps(make_tree("t", extra=[dict(entry("a b"), path=[])]))),
+    "tree entry without a path": ("contract", json.dumps(make_tree("t", extra=[{"kind": "command"}]))),
     "results not JSON": ("result", "{not json"),
     "results without results": ("result", json.dumps({"standard_version": 1})),
     "results of another version": ("result", json.dumps({"standard_version": 2, "results": []})),

@@ -71,7 +71,8 @@ def load_tree(path):
         where = f"{path}: commands[{i}]"
         need(isinstance(c, dict), f"{where} must be an object")
         need(c.get("kind") in ENTRY_KINDS, f"{where}.kind must be one of {', '.join(ENTRY_KINDS)}")
-        need(c.get("path") is None or is_words(c["path"]),
+        need("path" in c, f"{where} is missing path")
+        need(c["path"] is None or is_words(c["path"]),
              f"{where}.path must be null or a non-empty list of words")
     return t
 
@@ -265,7 +266,7 @@ def check_results(path):
             else:
                 problems += [f"{where}.evidence {p}" for p in (evidence_problem(x, root) for x in ev) if p]
         if "command_kind" in r:
-            if r["command_kind"] not in kind_names:
+            if not isinstance(r["command_kind"], str) or r["command_kind"] not in kind_names:
                 problems.append(f"{where}.command_kind must be one of {', '.join(sorted(kind_names))}")
             elif "evidence" not in r:
                 problems.append(f"{where} has command_kind but no evidence citing the handler")
@@ -311,11 +312,16 @@ def create_contract(name, dry_run, key):
     if key is not None:
         # The key and the tree's hash are kept in the contract itself, so a repeat needs no other file.
         digest = hashlib.sha256(Path(name).read_bytes()).hexdigest()
-        first = KEY_LINE.search(out.read_text(encoding="utf-8")) if out.exists() else None
-        if first and json.loads(first.group(1)) == key:
+        try:
+            old = out.read_text(encoding="utf-8") if out.exists() else ""
+            first = KEY_LINE.search(old)
+            first_key = json.loads(first.group(1)) if first else None
+        except (OSError, ValueError) as e:
+            raise Invalid(f"cannot read the idempotency key in {out}: {e}")
+        if first_key == key:
             if first.group(2) != digest:
                 raise Conflict(f"idempotency key {key!r} was used with a different {TREE}")
-            return {"path": str(out)}
+            return {"path": str(out), "contract": old} if dry_run else {"path": str(out)}
         text += f"\n<!-- idempotency-key: {json.dumps(key)} tree-sha256: {digest} -->\n"
     if dry_run:
         return {"path": str(out), "contract": text}
