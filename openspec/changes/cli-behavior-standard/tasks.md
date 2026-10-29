@@ -4,23 +4,23 @@ Phase 0 (section 1) is written before the owner sets `Status: Approved`, because
 
 ## 1. Evals (phase 0)
 
-- [ ] 1.1 Copy the nine `evals/agent-interface/*` cases to `evals/menu-design/` (keep the originals until archive); in the copies of `ignores-ordinary-cli-use/graders/no-skill.md` and `ignores-unrelated-request/graders/no-skill.md`, match `menu-design` instead of `agent-interface`
-- [ ] 1.2 evals/menu-design/leaves-behavior-to-cli-behavior for "Behavior request"
-- [ ] 1.3 evals/cli-behavior/ignores-ordinary-cli-use for "Ordinary CLI use"
-- [ ] 1.4 evals/cli-behavior/leaves-naming-to-menu-design for "Naming request"
-- [ ] 1.5 evals/cli-behavior/takes-generic-check-request for "Generic check request"
-- [ ] 1.6 evals/cli-behavior/reports-behavior-findings for "CLI with behavior failures"
-- [ ] 1.7 evals/cli-behavior/marks-unproven-as-unknown for "Behavior the source cannot prove"
-- [ ] 1.8 evals/cli-behavior/records-not-applicable for "Rule that does not apply"
-- [ ] 1.9 evals/cli-behavior/passes-agent-ready-cli for "Agent-ready CLI"
-- [ ] 1.10 evals/cli-behavior/plans-full-compliance for "Plan with an optional deviation"
-- [ ] 1.11 evals/cli-behavior/offers-no-padding-deviations for "No deviation worth offering"
-- [ ] 1.12 evals/cli-behavior/honors-accepted-deviation for "Accepted deviation"
-- [ ] 1.13 evals/cli-behavior/accepts-deviation-on-instruction for "Accepting an option on instruction"
-- [ ] 1.14 evals/cli-behavior/designs-behavior-contract for "New CLI from a description"
-- [ ] 1.15 evals/cli-behavior/designs-contract-from-tree for "Contract for an existing command tree"
-- [ ] 1.16 evals/cli-behavior/asks-for-cli-when-missing for "No CLI named"
-- [ ] 1.17 Independent review: a reviewer that sees only the specs and the case files confirms each case fails a skill that breaks its scenario (TESTING.md, "Writing eval cases")
+- [x] 1.1 Copy the nine `evals/agent-interface/*` cases to `evals/menu-design/` (keep the originals until archive); in the copies of `ignores-ordinary-cli-use/graders/no-skill.md` and `ignores-unrelated-request/graders/no-skill.md`, match `menu-design` instead of `agent-interface`
+- [x] 1.2 evals/menu-design/leaves-behavior-to-cli-behavior for "Behavior request"
+- [x] 1.3 evals/cli-behavior/ignores-ordinary-cli-use for "Ordinary CLI use"
+- [x] 1.4 evals/cli-behavior/leaves-naming-to-menu-design for "Naming request"
+- [x] 1.5 evals/cli-behavior/takes-generic-check-request for "Generic check request"
+- [x] 1.6 evals/cli-behavior/reports-behavior-findings for "CLI with behavior failures"
+- [x] 1.7 evals/cli-behavior/marks-unproven-as-unknown for "Behavior the source cannot prove"
+- [x] 1.8 evals/cli-behavior/records-not-applicable for "Rule that does not apply"
+- [x] 1.9 evals/cli-behavior/passes-agent-ready-cli for "Agent-ready CLI"
+- [x] 1.10 evals/cli-behavior/plans-full-compliance for "Plan with an optional deviation"
+- [x] 1.11 evals/cli-behavior/offers-no-padding-deviations for "No deviation worth offering"
+- [x] 1.12 evals/cli-behavior/honors-accepted-deviation for "Accepted deviation"
+- [x] 1.13 evals/cli-behavior/accepts-deviation-on-instruction for "Accepting an option on instruction"
+- [x] 1.14 evals/cli-behavior/designs-behavior-contract for "New CLI from a description"
+- [x] 1.15 evals/cli-behavior/designs-contract-from-tree for "Contract for an existing command tree"
+- [x] 1.16 evals/cli-behavior/asks-for-cli-when-missing for "No CLI named"
+- [x] 1.17 Independent review: a reviewer that sees only the specs and the case files confirms each case fails a skill that breaks its scenario (TESTING.md, "Writing eval cases"). Done 2026-10-29: 10 of 15 cases fixed (5859265, a5a5888); review summary in the owner's local notes (.dev/eval-synopsis.md)
 - [ ] 1.18 `bin/gate tests/unit/test_specs.py tests/unit/test_evals.py::test_each_skill_has_eval_cases`; then the owner sets `Status: Approved`
 
 ## 2. Shared resources, rename and `tree.py` (phase 1)
