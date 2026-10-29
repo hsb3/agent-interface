@@ -174,9 +174,10 @@ Do not judge the names; that is menu-design's job.
    - The counts from `data.counts`: pass, fail, unknown, not applicable,
      deviation.
    - Every failing finding from `data.findings`, in its order (worst first:
-     `data`, then `hang`, then `misread`), each with its commands, rule,
-     severity, `file:line`, the task it breaks, the fix and the test. With
-     none, say the check found no failing findings.
+     `data`, then `hang`, then `misread`). Give every finding, `misread` ones
+     included, all of: its commands, rule, severity, `file:line`, the task it
+     breaks, the fix and the test. Never shorten a finding or leave its task
+     or test to the plan. With none, say the check found no failing findings.
    - Each unknown, with what the source could not prove and its test.
    - Each accepted deviation: its command and rule, reported as a deviation
      and not a failing finding, with the reason from its register entry
