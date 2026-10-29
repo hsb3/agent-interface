@@ -45,10 +45,10 @@ Phase 0 (section 1) is written before the owner sets `Status: Approved`, because
 
 ## 4. The `cli-behavior` skill (phase 3)
 
-- [ ] 4.1 `skills/cli-behavior/references/cli-behavior.md` (one `## <rule-id>` per rule, bullet lines) and `references/output-files.md`
-- [ ] 4.2 `skills/cli-behavior/SKILL.md`: description and routing for "Stay out of unrelated requests" and "Generic check request"; hard limits; design and check steps; "Plan the CLI to full compliance"; "Offer deviations only as options"; "Ask for a missing target"
-- [ ] 4.3 `skills/cli-behavior/agents/openai.yaml` and `assets/icon.svg` (brand colors, `viewBox="0 0 24 24"`, `<title>`)
-- [ ] 4.4 `bin/gate tests/unit/test_frontmatter.py tests/unit/test_skill_load_limits.py tests/unit/test_manifests.py tests/unit/test_images.py`
+- [x] 4.1 `skills/cli-behavior/references/cli-behavior.md` (one `## <rule-id>` per rule, bullet lines) and `references/output-files.md`
+- [x] 4.2 `skills/cli-behavior/SKILL.md`: description and routing for "Stay out of unrelated requests" and "Generic check request"; hard limits; design and check steps; "Plan the CLI to full compliance"; "Offer deviations only as options"; "Ask for a missing target"
+- [x] 4.3 `skills/cli-behavior/agents/openai.yaml` and `assets/icon.svg` (brand colors, `viewBox="0 0 24 24"`, `<title>`)
+- [x] 4.4 `bin/gate tests/unit/test_frontmatter.py tests/unit/test_skill_load_limits.py tests/unit/test_manifests.py tests/unit/test_images.py`
 
 ## 5. Metadata, docs and packages (phase 4)
 
