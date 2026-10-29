@@ -71,4 +71,4 @@ Phase 0 (section 1) is written before the owner sets `Status: Approved`, because
 - [x] 7.1 `openspec archive cli-behavior-standard`
 - [x] 7.2 Delete `evals/agent-interface/`
 - [x] 7.3 `python3 scripts/pack_plugin.py --sync`, `bin/gate` and `bin/gate tests/integration`
-- [ ] 7.4 Open the pull request (the ruleset requires one); after merge, tag and release 0.2.0
+- [x] 7.4 Open the pull request (the ruleset requires one); after merge, tag and release 0.2.0
