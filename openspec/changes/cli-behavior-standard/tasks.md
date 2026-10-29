@@ -35,13 +35,13 @@ Phase 0 (section 1) is written before the owner sets `Status: Approved`, because
 
 ## 3. Behavior standard and script (phase 2)
 
-- [ ] 3.1 `tests/unit/test_cli_behavior.py` with every case in design.md §3; watch it fail with no standard or script
-- [ ] 3.1a In `tests/unit/test_cli_behavior.py`, run `contract create` on the tree in evals/cli-behavior/designs-contract-from-tree and on a test tree for the `tracker` CLI described in designs-behavior-contract (that case has no fixture tree) and assert every content grader's pattern matches the output, so the graders track the real standard
-- [ ] 3.2 `skills/cli-behavior/references/cli-behavior.json` (kinds, rules with `applies_to` and `tests`, idempotency verbs, error codes, severities, envelope fields, examples, paging defaults)
-- [ ] 3.3 `skills/cli-behavior/references/deviation.schema.json`
-- [ ] 3.4 `skills/cli-behavior/scripts/behavior.py`: `contract create` (with `--dry-run`) for "New CLI from a description" and "Contract for an existing command tree"; `result check` for "Check a CLI's behavior", "Behavior the source cannot prove", "Rule that does not apply", "Accepted deviation"
-- [ ] 3.5 `tests/integration/test_install.py`: assert the Codex install contains `resources/cli-naming.json`
-- [ ] 3.6 `bin/gate tests/unit/test_cli_behavior.py`
+- [x] 3.1 `tests/unit/test_cli_behavior.py` with every case in design.md §3; watch it fail with no standard or script
+- [x] 3.1a In `tests/unit/test_cli_behavior.py`, run `contract create` on the tree in evals/cli-behavior/designs-contract-from-tree and on a test tree for the `tracker` CLI described in designs-behavior-contract (that case has no fixture tree) and assert every content grader's pattern matches the output, so the graders track the real standard
+- [x] 3.2 `skills/cli-behavior/references/cli-behavior.json` (kinds, rules with `applies_to` and `tests`, idempotency verbs, error codes, severities, envelope fields, examples, paging defaults)
+- [x] 3.3 `skills/cli-behavior/references/deviation.schema.json`
+- [x] 3.4 `skills/cli-behavior/scripts/behavior.py`: `contract create` (with `--dry-run`) for "New CLI from a description" and "Contract for an existing command tree"; `result check` for "Check a CLI's behavior", "Behavior the source cannot prove", "Rule that does not apply", "Accepted deviation"
+- [x] 3.5 `tests/integration/test_install.py`: assert the Codex install contains `resources/cli-naming.json`
+- [x] 3.6 `bin/gate tests/unit/test_cli_behavior.py`
 
 ## 4. The `cli-behavior` skill (phase 3)
 
