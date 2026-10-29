@@ -544,6 +544,9 @@ MUTATIONS = {
     "evidence outside the repository": (
         lambda res, reg: find(res, "dry-run", "pass").update(evidence=["/etc/hosts:1"]),
         "'/etc/hosts:1' is not repository-relative"),
+    "evidence with a NUL byte": (
+        lambda res, reg: find(res, "no-prompt", "pass").update(evidence=["a\x00b:1"]),
+        "'a\\x00b:1': cannot read"),
     "result names an unknown rule": (
         lambda res, reg: res["results"].append({"commands": ["item get"], "rule": "no-such-result-rule",
                                                 "status": "not_applicable", "reason": "x"}),

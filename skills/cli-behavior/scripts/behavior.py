@@ -153,13 +153,13 @@ def evidence_problem(item, root):
     if not m:
         return f"{item!r} is not path:line"
     rel, line = m.group(1), int(m.group(2))
-    target = (root / rel).resolve()
-    if Path(rel).is_absolute() or root not in target.parents:
-        return f"{item!r} is not repository-relative"
     try:
+        target = (root / rel).resolve()
+        if Path(rel).is_absolute() or root not in target.parents:
+            return f"{item!r} is not repository-relative"
         lines = len(target.read_bytes().splitlines())
-    except OSError as e:
-        return f"{item!r}: cannot read {rel}: {e.strerror}"
+    except (OSError, ValueError) as e:
+        return f"{item!r}: cannot read {rel}: {getattr(e, 'strerror', None) or e}"
     return None if line <= lines else f"{item!r}: {rel} has {lines} lines"
 
 
