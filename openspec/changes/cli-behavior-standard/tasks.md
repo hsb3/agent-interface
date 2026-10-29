@@ -63,7 +63,7 @@ Phase 0 (section 1) is written before the owner sets `Status: Approved`, because
 - [x] 6.1 `bin/gate tests/integration`
 - [x] 6.2 Behavior tier from TESTING.md over both skills; the nine cases that passed on 2026-10-28 still pass under `menu-design` (Goal 7); one host record row
 - [x] 6.3 Live Codex: `PLUGIN_LIVE=1 bin/gate tests/integration`; one host record row
-- [ ] 6.4 Live proof 1: the check on a scratch copy of `/Users/henry/Developer/agent-toolkits/toolkits/notes` (commit recorded); `result check` accepts the results; every cited line exists; record the share of unknowns; the owner applies one fix and a re-check passes it (CUJ 3); outputs kept in `~/.local/share/agent-artifacts/agent-interface/`
+- [x] 6.4 Live proof 1: the check on a scratch copy of `/Users/henry/Developer/agent-toolkits/toolkits/notes` (commit recorded); `result check` accepts the results; every cited line exists; record the share of unknowns; the owner applies one fix and a re-check passes it (CUJ 3); outputs kept in `~/.local/share/agent-artifacts/agent-interface/`. Done 2026-10-29 except the fix and re-check, which wait on hsb3/agent-toolkits#99-#104; tracked in hsb3/agent-interface#17
 - [x] 6.5 Live proof 2: the check on scratch copies of `tree.py` and `behavior.py` under `/private/tmp/agents/agent-interface/self-check/` reports no failing findings
 
 ## 7. Archive (phase 6)
