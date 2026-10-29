@@ -21,7 +21,7 @@ Phase 0 (section 1) is written before the owner sets `Status: Approved`, because
 - [x] 1.15 evals/cli-behavior/designs-contract-from-tree for "Contract for an existing command tree"
 - [x] 1.16 evals/cli-behavior/asks-for-cli-when-missing for "No CLI named"
 - [x] 1.17 Independent review: a reviewer that sees only the specs and the case files confirms each case fails a skill that breaks its scenario (TESTING.md, "Writing eval cases"). Done 2026-10-29: 10 of 15 cases fixed (5859265, a5a5888); review summary in the owner's local notes (.dev/eval-synopsis.md)
-- [ ] 1.18 `bin/gate tests/unit/test_specs.py tests/unit/test_evals.py::test_each_skill_has_eval_cases`; then the owner sets `Status: Approved`
+- [x] 1.18 `bin/gate tests/unit/test_specs.py tests/unit/test_evals.py::test_each_skill_has_eval_cases`; then the owner sets `Status: Approved`
 
 ## 2. Shared resources, rename and `tree.py` (phase 1)
 

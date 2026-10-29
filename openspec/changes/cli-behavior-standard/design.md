@@ -1,6 +1,6 @@
 # Design
 
-Status: Draft
+Status: Approved
 <!-- Draft → In review → Approved. Only the owner sets Approved. -->
 
 *   **Author:** hsb3
