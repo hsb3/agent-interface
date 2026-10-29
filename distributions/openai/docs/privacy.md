@@ -1,7 +1,7 @@
 # Privacy
 
-This plugin is instructions, reference files and one standard-library Python
-script. It runs inside your coding agent with that agent's model, permissions and
+This plugin is instructions, reference files and two standard-library Python
+scripts. It runs inside your coding agent with that agent's model, permissions and
 data handling.
 
 When you ask it to plan renames, it searches the folders you name for callers of

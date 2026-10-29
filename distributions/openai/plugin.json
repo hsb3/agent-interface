@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "agent-interface",
-  "version": "0.1.0",
-  "description": "Design and check CLI command and MCP tool names against a noun-verb standard, and plan renames that list affected callers.",
+  "version": "0.2.0",
+  "description": "Design and check CLI command and MCP tool names against a noun-verb standard, and how a CLI behaves for agents: output, errors, paging, prompts and safe retries.",
   "author": {
     "name": "Henry S. Burden III"
   },
@@ -13,14 +13,16 @@
     "com.openai": {
       "interface": {
         "displayName": "Agent Interface",
-        "shortDescription": "Noun-verb CLI and MCP naming",
-        "longDescription": "Design and check CLI command and MCP tool names against a noun-verb standard, and plan renames that list affected callers.",
+        "shortDescription": "CLI names and agent behavior",
+        "longDescription": "Design and check CLI command and MCP tool names against a noun-verb standard, and how a CLI behaves for agents: output, errors, paging, prompts and safe retries.",
         "developerName": "Henry S. Burden III",
         "category": "Developer Tools",
         "capabilities": [
           "Check CLI and MCP names",
           "Plan renames with callers",
-          "Design noun-verb commands"
+          "Design noun-verb commands",
+          "Check CLI behavior for agents",
+          "Design CLI behavior contracts"
         ],
         "websiteURL": "https://github.com/hsb3/agent-interface",
         "supportURL": "https://github.com/hsb3/agent-interface/issues",

@@ -26,6 +26,8 @@
   ship; shipped files link to them by absolute GitHub URL.
 - Images come from the one-time brand kit: every SVG uses only colors listed in
   `assets/brand.json`, and every PNG has its SVG source beside it.
+- Each skill keeps its deviation schema at `references/deviation.schema.json`
+  and writes its register to `docs/<skill>-deviations.json` in the target repository.
 - Runtime packages carry no hooks, MCP servers or apps unless a change's design
   adds them and the packer and tests change with it.
 - Done means `bin/gate` passes and `TESTING.md` records any host run claimed.

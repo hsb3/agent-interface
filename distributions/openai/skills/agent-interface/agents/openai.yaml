@@ -1,6 +1,0 @@
-interface:
-  display_name: "Agent Interface"
-  short_description: "Check CLI and MCP names against a noun-verb standard"
-  icon_small: "./assets/icon.svg"
-  icon_large: "./assets/icon.svg"
-  brand_color: "#1B6EF3"

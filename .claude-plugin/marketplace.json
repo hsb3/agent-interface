@@ -3,12 +3,12 @@
   "owner": {
     "name": "Henry S. Burden III"
   },
-  "description": "Design and check CLI command and MCP tool names against a noun-verb standard, and plan renames that list affected callers.",
+  "description": "Design and check CLI command and MCP tool names against a noun-verb standard, and how a CLI behaves for agents: output, errors, paging, prompts and safe retries.",
   "plugins": [
     {
       "name": "agent-interface",
       "source": "./distributions/claude",
-      "description": "Design and check CLI command and MCP tool names against a noun-verb standard, and plan renames that list affected callers."
+      "description": "Design and check CLI command and MCP tool names against a noun-verb standard, and how a CLI behaves for agents: output, errors, paging, prompts and safe retries."
     }
   ]
 }

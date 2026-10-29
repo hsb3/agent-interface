@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "cli-behavior deviation register (docs/cli-behavior-deviations.json)",
+  "type": "object",
+  "required": ["standard_version", "deviations"],
+  "properties": {
+    "standard_version": {"type": "integer"},
+    "deviations": {"type": "array", "items": {"$ref": "#/$defs/deviation"}}
+  },
+  "$defs": {
+    "text": {"type": "string", "minLength": 1},
+    "deviation": {
+      "type": "object",
+      "required": ["command", "rule", "proposed_form", "task", "harm", "evidence",
+                   "agent_cost", "work", "status"],
+      "properties": {
+        "command": {"$ref": "#/$defs/text", "description": "a covered command in the tree, its path words joined by spaces"},
+        "rule": {"$ref": "#/$defs/text", "description": "a rule id in cli-behavior.json"},
+        "proposed_form": {"$ref": "#/$defs/text", "description": "what the command does instead"},
+        "task": {"$ref": "#/$defs/text", "description": "the agent or user task the standard form makes worse"},
+        "harm": {"$ref": "#/$defs/text", "description": "how the standard form makes that task worse, concretely"},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/text"}, "minItems": 1,
+                     "description": "file:line or caller showing the task exists"},
+        "agent_cost": {"$ref": "#/$defs/text", "description": "what an agent loses if the deviation is taken"},
+        "work": {
+          "type": "object",
+          "required": ["standard", "deviation"],
+          "properties": {"standard": {"$ref": "#/$defs/text"}, "deviation": {"$ref": "#/$defs/text"}}
+        },
+        "status": {"enum": ["proposed", "accepted", "declined"]},
+        "decided": {
+          "type": "object",
+          "required": ["on", "by"],
+          "properties": {"on": {"type": "string", "format": "date"}, "by": {"$ref": "#/$defs/text"}}
+        }
+      },
+      "if": {"properties": {"status": {"const": "proposed"}}},
+      "else": {"required": ["decided"]}
+    }
+  }
+}

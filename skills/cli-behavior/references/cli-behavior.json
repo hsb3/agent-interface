@@ -1,0 +1,172 @@
+{
+  "version": 1,
+  "kinds": {
+    "list": "read",
+    "get": "read",
+    "search": "read",
+    "check": "read",
+    "create": "write",
+    "update": "write",
+    "delete": "write",
+    "sync": "write",
+    "import": "write",
+    "export": "write",
+    "run": "write",
+    "stop": "write",
+    "start": "long-running"
+  },
+  "rules": [
+    {
+      "id": "json-flag",
+      "applies_to": "all",
+      "form": "--json selects machine output; a command whose only output is the envelope passes without it; a command that prints nothing records not_applicable",
+      "severity": "misread",
+      "flags": ["--json"],
+      "tests": [
+        "run `<command> --json`: stdout parses as one JSON document"
+      ]
+    },
+    {
+      "id": "envelope",
+      "applies_to": "all",
+      "form": "with --json, success is {\"schema_version\": 1, \"ok\": true, \"data\": ...}; a list's data is an array, and the envelope adds a top-level \"page\"",
+      "severity": "misread",
+      "tests": [
+        "run `<command> --json`: `schema_version` is 1, `ok` is true and `data` is present"
+      ]
+    },
+    {
+      "id": "stdout-data-only",
+      "applies_to": "all",
+      "form": "with --json, stdout holds exactly one JSON document, the success envelope or the failure envelope, even on a crash or a usage error; progress, logs and warnings go to stderr as free text",
+      "severity": "misread",
+      "tests": [
+        "run `<command> --json` with an unknown flag: stdout parses as one JSON document and stderr holds no JSON"
+      ]
+    },
+    {
+      "id": "error-object",
+      "applies_to": "all",
+      "form": "with --json, a failure is {\"schema_version\": 1, \"ok\": false, \"error\": {\"code\", \"message\", \"retryable\", \"next_action\"}} on stdout, code from the code table; an uncaught exception becomes INTERNAL and a usage error INVALID_ARGUMENT, both as that envelope; without --json, a failure is plain text on stderr with the same exit status",
+      "severity": "misread",
+      "tests": [
+        "run `<command> --json` with an invalid argument: stdout is the failure envelope with `error.code` `INVALID_ARGUMENT`, `retryable` false and a non-empty `next_action`"
+      ]
+    },
+    {
+      "id": "exit-status",
+      "applies_to": "all",
+      "form": "0 success, 1 failure, 2 invalid usage, per the code table; a check that completes is a success even when it reports problems, and callers read data",
+      "severity": "misread",
+      "tests": [
+        "run `<command>` with an unknown flag: it exits 2"
+      ]
+    },
+    {
+      "id": "no-prompt",
+      "applies_to": "all",
+      "form": "never waits on stdin for input or confirmation; missing input fails with INVALID_ARGUMENT; no pager, spinner or color when stdout is not a terminal or --json is set, and NO_COLOR is honored",
+      "severity": "hang",
+      "tests": [
+        "run `<command>` with stdin closed and a required argument missing: it exits 2 with `INVALID_ARGUMENT` and does not wait"
+      ]
+    },
+    {
+      "id": "confirm-flag",
+      "applies_to": {"verbs": ["delete"]},
+      "form": "proceeds only with --yes; without it, fails with CONFIRMATION_REQUIRED",
+      "severity": "hang",
+      "flags": ["--yes"],
+      "tests": [
+        "run `<command>` without `--yes`: it exits 2 with `CONFIRMATION_REQUIRED` and changes nothing"
+      ]
+    },
+    {
+      "id": "paged-list",
+      "applies_to": {"verbs": ["list", "search"]},
+      "form": "--limit (default 20, maximum 100; above 100 fails with INVALID_ARGUMENT) and --cursor; page: {\"next_cursor\": <string or null>, \"has_more\": <bool>}, where has_more is true exactly when next_cursor is not null; never stops early without has_more: true; a short list is paged too; judged on the --json output, so without --json a list may print rows as free text",
+      "severity": "data",
+      "flags": ["--limit", "--cursor"],
+      "tests": [
+        "read 250 records with `<command> --limit 20`: every record appears once, and the last page has `has_more: false`",
+        "run `<command> --limit 101`: it exits 2 with `INVALID_ARGUMENT`"
+      ]
+    },
+    {
+      "id": "dry-run",
+      "applies_to": {"kinds": ["write"]},
+      "form": "--dry-run reports the changes in data and makes none",
+      "severity": "data",
+      "flags": ["--dry-run"],
+      "tests": [
+        "run `<command> --dry-run`: `data` lists the changes and no record, state or file changes"
+      ]
+    },
+    {
+      "id": "idempotent-write",
+      "applies_to": {"kinds": ["write"]},
+      "form": "create, import, run take --idempotency-key: a repeat with the same key and arguments returns the first result, and the same key with different arguments fails with CONFLICT; how long keys are kept is not prescribed. update, delete, sync, stop, export are safe by end state; a delete of a record already gone exits 0 with data.deleted: false; a repeat is a run after the first one finished, and two runs at the same time are outside this rule",
+      "severity": "data",
+      "tests": [
+        "run `<command>` twice with the same arguments, and the same `--idempotency-key` where it takes one: the end state is the same as after one run, and a delete of a record already gone exits 0 with `data.deleted: false`",
+        "where `<command>` takes `--idempotency-key`, run it again with the same key and other arguments: it fails with `CONFLICT`"
+      ]
+    },
+    {
+      "id": "operation-handle",
+      "applies_to": {"kinds": ["long-running"]},
+      "form": "returns data.operation_id; status is read with operation get <id>; a start that stays in the foreground records not_applicable with its reason",
+      "severity": "data",
+      "tests": [
+        "run `<command> --json`: it returns `data.operation_id` at once, and `operation get <id>` reads its status"
+      ]
+    },
+    {
+      "id": "secret-input",
+      "applies_to": "all",
+      "form": "no secret as a flag value; read from an environment variable or a file; never print a secret",
+      "severity": "data",
+      "tests": [
+        "run `<command>` with its secret in the environment variable it reads: no flag takes the secret, and neither stdout nor stderr contains it"
+      ]
+    }
+  ],
+  "idempotency": {
+    "flag": "--idempotency-key",
+    "key_verbs": ["create", "import", "run"],
+    "end_state_verbs": ["update", "delete", "sync", "stop", "export"]
+  },
+  "error_codes": {
+    "INVALID_ARGUMENT": {"retryable": false, "exit": 2, "applies_to": "all",
+                         "when": "bad flags, arguments or input, including a usage error"},
+    "CONFIRMATION_REQUIRED": {"retryable": false, "exit": 2, "applies_to": {"verbs": ["delete"]},
+                              "when": "a delete run without --yes"},
+    "NOT_FOUND": {"retryable": false, "exit": 1, "applies_to": "all",
+                  "when": "the named record does not exist"},
+    "CONFLICT": {"retryable": "command", "exit": 1, "applies_to": {"kinds": ["write"]},
+                 "when": "the change conflicts with current state, or an idempotency key is reused with different arguments"},
+    "UNAUTHENTICATED": {"retryable": false, "exit": 1, "applies_to": "all",
+                        "when": "no or expired credentials"},
+    "PERMISSION_DENIED": {"retryable": false, "exit": 1, "applies_to": "all",
+                          "when": "credentials lack the right"},
+    "RATE_LIMITED": {"retryable": true, "exit": 1, "applies_to": "all",
+                     "when": "refused before running; retry after the delay in next_action"},
+    "UNAVAILABLE": {"retryable": "command", "exit": 1, "applies_to": "all",
+                    "when": "a dependency could not be reached"},
+    "TIMEOUT": {"retryable": "command", "exit": 1, "applies_to": "all",
+                "when": "the command gave up waiting"},
+    "INTERNAL": {"retryable": false, "exit": 1, "applies_to": "all",
+                 "when": "anything unexpected, including an uncaught exception"}
+  },
+  "severities": ["data", "hang", "misread"],
+  "envelope": {
+    "success": ["schema_version", "ok", "data"],
+    "failure": ["schema_version", "ok", "error"]
+  },
+  "error_object": ["code", "message", "retryable", "next_action"],
+  "paging": {"limit": 20, "max": 100, "page": ["next_cursor", "has_more"]},
+  "example_success": {"schema_version": 1, "ok": true, "data": {"id": "a1", "title": "First record"}},
+  "example_failure": {"schema_version": 1, "ok": false, "error": {
+    "code": "NOT_FOUND", "message": "no record a9", "retryable": false,
+    "next_action": "run the list command to find the record's id"}}
+}

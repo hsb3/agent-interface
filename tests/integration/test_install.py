@@ -55,6 +55,8 @@ def test_codex_installs_generated_runtime(codex_home: dict) -> None:
     expected = {p.relative_to(ROOT / "distributions/openai").as_posix()
                 for p in (ROOT / "distributions/openai").rglob("*") if p.is_file()}
     assert installed == expected
+    # Skills reach the shared vocabulary by a skill-relative link, so it must ship at the plugin root.
+    assert "resources/cli-naming.json" in installed
 
 
 @needs_codex
