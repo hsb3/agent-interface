@@ -84,7 +84,7 @@
     {
       "id": "paged-list",
       "applies_to": {"verbs": ["list", "search"]},
-      "form": "--limit (default 20, maximum 100; above 100 fails with INVALID_ARGUMENT) and --cursor; page: {\"next_cursor\": <string or null>, \"has_more\": <bool>}, where has_more is true exactly when next_cursor is not null; never stops early without has_more: true; a short list is paged too",
+      "form": "--limit (default 20, maximum 100; above 100 fails with INVALID_ARGUMENT) and --cursor; page: {\"next_cursor\": <string or null>, \"has_more\": <bool>}, where has_more is true exactly when next_cursor is not null; never stops early without has_more: true; a short list is paged too; judged on the --json output, so without --json a list may print rows as free text",
       "severity": "data",
       "flags": ["--limit", "--cursor"],
       "tests": [
@@ -105,7 +105,7 @@
     {
       "id": "idempotent-write",
       "applies_to": {"kinds": ["write"]},
-      "form": "create, import, run take --idempotency-key: a repeat with the same key and arguments returns the first result, and the same key with different arguments fails with CONFLICT; how long keys are kept is not prescribed. update, delete, sync, stop, export are safe by end state; a delete of a record already gone exits 0 with data.deleted: false",
+      "form": "create, import, run take --idempotency-key: a repeat with the same key and arguments returns the first result, and the same key with different arguments fails with CONFLICT; how long keys are kept is not prescribed. update, delete, sync, stop, export are safe by end state; a delete of a record already gone exits 0 with data.deleted: false; a repeat is a run after the first one finished, and two runs at the same time are outside this rule",
       "severity": "data",
       "tests": [
         "run `<command>` twice with the same arguments, and the same `--idempotency-key` where it takes one: the end state is the same as after one run, and a delete of a record already gone exits 0 with `data.deleted: false`",

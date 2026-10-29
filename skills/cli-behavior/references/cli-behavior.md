@@ -32,6 +32,11 @@ Worst first. A finding's severity is its rule's severity.
 
 Findings are ordered by severity, then the tree's command order, then the order of the rules below. `result check` returns them in that order.
 
+## What the rules judge
+
+- The output rules (`json-flag`, `envelope`, `stdout-data-only`, `error-object`, `paged-list`) are judged on the output with `--json`. Without `--json`, output is free text for people; only its exit status is judged, by `exit-status`.
+- `idempotent-write` judges a repeat: a run after the first one finished. Two runs at the same time are outside the rule.
+
 ## json-flag
 
 - Applies to: all commands. Severity: `misread`.
@@ -91,7 +96,7 @@ Findings are ordered by severity, then the tree's command order, then the order 
 ## paged-list
 
 - Applies to: verbs `list`, `search`. Severity: `data`.
-- Form: `--limit` (default 20, maximum 100; above 100 fails with `INVALID_ARGUMENT`) and `--cursor`. The envelope has `page: {"next_cursor": <string or null>, "has_more": <bool>}`, where `has_more` is `true` exactly when `next_cursor` is not null. Never stops early without `has_more: true`; a short list is paged too.
+- Form: `--limit` (default 20, maximum 100; above 100 fails with `INVALID_ARGUMENT`) and `--cursor`. The envelope has `page: {"next_cursor": <string or null>, "has_more": <bool>}`, where `has_more` is `true` exactly when `next_cursor` is not null. Never stops early without `has_more: true`; a short list is paged too. Judged on the `--json` output, so without `--json` a list may print rows as free text.
 - Example: `{"schema_version": 1, "ok": true, "data": [...], "page": {"next_cursor": "41", "has_more": true}}`; the next call is `tool item list --json --cursor 41`.
 - Fails when: the list is cut at a fixed size with no sign that more exist, or prints every row with no bound, or pages by offset.
 - Reason: an agent reads a silently cut list as complete; offset paging skips or repeats rows when rows change between pages.
@@ -107,7 +112,7 @@ Findings are ordered by severity, then the tree's command order, then the order 
 ## idempotent-write
 
 - Applies to: kind `write`. Severity: `data`.
-- Form: `create`, `import` and `run` take `--idempotency-key`: a repeat with the same key and arguments returns the first result, and the same key with different arguments fails with `CONFLICT`; how long keys are kept is not prescribed. `update`, `delete`, `sync`, `stop` and `export` are safe by end state: running them twice leaves the same state as once. A `delete` of a record already gone exits 0 with `data.deleted: false`.
+- Form: `create`, `import` and `run` take `--idempotency-key`: a repeat with the same key and arguments returns the first result, and the same key with different arguments fails with `CONFLICT`; how long keys are kept is not prescribed. `update`, `delete`, `sync`, `stop` and `export` are safe by end state: running them twice leaves the same state as once. A `delete` of a record already gone exits 0 with `data.deleted: false`. A repeat is a run after the first one finished; two runs at the same time are outside this rule.
 - Example: `tool item create --name x --idempotency-key 9f2c` run twice creates one item.
 - Fails when: a repeated create makes a second record, or a repeated delete fails with `NOT_FOUND`.
 - Reason: an agent retries after a timeout without knowing whether the first run acted.
