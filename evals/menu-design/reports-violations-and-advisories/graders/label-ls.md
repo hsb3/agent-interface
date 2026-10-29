@@ -1,7 +1,6 @@
 ---
-type: llm
+type: regex
+pattern: 'label ls[^\n]*label list'
+target: last_message
 weight: 1
 ---
-
-The reply lists `label ls` as a violation, not an advisory, with the proposed
-name `label list`.

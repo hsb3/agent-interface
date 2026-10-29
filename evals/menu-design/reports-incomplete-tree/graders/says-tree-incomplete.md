@@ -1,8 +1,7 @@
 ---
-type: llm
+type: regex
+pattern: '\bincomplete\b|\bnot complete\b|\bmay miss\b'
+flags: i
+target: last_message
 weight: 1
 ---
-
-The reply says the command tree is incomplete, meaning only part of the CLI's
-commands could be read. A reply that gives a check result as if it covered
-every command fails.

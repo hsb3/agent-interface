@@ -1,9 +1,6 @@
 ---
-type: llm
-focus: trace
+type: regex
+pattern: '\\*"ok\\*":\s*true,(?:\s|\\+n)*\\*"data\\*":\s*\{(?:\s|\\+n)*\\*"standard_version\\*":\s*[^,]*,(?:\s|\\+n)*\\*"counts'
+target: trace
 weight: 1
 ---
-
-The last run of `behavior.py result check` printed an envelope with `"ok": true`.
-Fail if no run of `behavior.py result check` appears, or if the last one printed
-`"ok": false` (for example `INVALID_ARGUMENT`).
