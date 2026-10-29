@@ -13,7 +13,7 @@ skill text.
 manifests repeat those values; the unit tests reject drift.
 
 Install the whole plugin. Copying `skills/` alone breaks skills that read
-`docs/` at run time.
+`docs/` and `resources/` at run time.
 
 Tested versions and dates live in the
 [host record](https://github.com/hsb3/agent-interface/blob/main/TESTING.md#host-record).

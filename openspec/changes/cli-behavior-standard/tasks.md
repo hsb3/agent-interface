@@ -52,15 +52,15 @@ Phase 0 (section 1) is written before the owner sets `Status: Approved`, because
 
 ## 5. Metadata, docs and packages (phase 4)
 
-- [ ] 5.1 `plugin.json` 0.2.0, description, `longDescription`, `shortDescription` "CLI names and agent behavior", `capabilities`; mirror into `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json` (whole `interface` block) and both `.claude-plugin/marketplace.json` descriptions
-- [ ] 5.2 `README.md` tagline, "Try it" (one example per skill) and the two-row Skills table
-- [ ] 5.3 `docs/claude.md`, `docs/codex.md`, `docs/privacy.md`, `docs/harnesses.md` as in design.md §5
-- [ ] 5.4 `AGENTS.md`: the deviation schema and register line
-- [ ] 5.5 `python3 scripts/pack_plugin.py --sync` and `bin/gate` (all but `test_no_orphan_eval_folders`)
+- [x] 5.1 `plugin.json` 0.2.0, description, `longDescription`, `shortDescription` "CLI names and agent behavior", `capabilities`; mirror into `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json` (whole `interface` block) and both `.claude-plugin/marketplace.json` descriptions
+- [x] 5.2 `README.md` tagline, "Try it" (one example per skill) and the two-row Skills table
+- [x] 5.3 `docs/claude.md`, `docs/codex.md`, `docs/privacy.md`, `docs/harnesses.md` as in design.md §5
+- [x] 5.4 `AGENTS.md`: the deviation schema and register line
+- [x] 5.5 `python3 scripts/pack_plugin.py --sync` and `bin/gate` (all but `test_no_orphan_eval_folders`)
 
 ## 6. Verify (phase 5)
 
-- [ ] 6.1 `bin/gate tests/integration`
+- [x] 6.1 `bin/gate tests/integration`
 - [ ] 6.2 Behavior tier from TESTING.md over both skills; the nine cases that passed on 2026-10-28 still pass under `menu-design` (Goal 7); one host record row
 - [ ] 6.3 Live Codex: `PLUGIN_LIVE=1 bin/gate tests/integration`; one host record row
 - [ ] 6.4 Live proof 1: the check on a scratch copy of `/Users/henry/Developer/agent-toolkits/toolkits/notes` (commit recorded); `result check` accepts the results; every cited line exists; record the share of unknowns; the owner applies one fix and a re-check passes it (CUJ 3); outputs kept in `~/.local/share/agent-artifacts/agent-interface/`

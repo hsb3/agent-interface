@@ -1,57 +1,6 @@
 # Remediation procedures
 
-The repo root is the working directory when the CLI's catalog or source is inside it. Otherwise it is the git repository that contains the CLI's source (`git -C <source folder> rev-parse --show-toplevel`). In a monorepo, it is the CLI's own folder, the one holding its `toolkit.json` or package file.
-
-## Building the tree
-
-Write `docs/cli-tree.json` in the format of [tree-format.md](tree-format.md). Read files only: never run the target CLI, not even `--help`, and never import it.
-
-### Inputs
-
-1. **Catalog.** If the repo has a `toolkit.json` (the agent-toolkits catalog file), read it. `surfaces.cli` is the CLI name (the tree's `cli`); each name in `tools` is an MCP tool name. Add the file to `sources` as `{"kind": "catalog", "ref": "toolkit.json"}`.
-2. **Source.** Find where the CLI defines its commands and read every file that registers one. Add each as `{"kind": "source", "ref": "<repo-relative path>"}`. Without a catalog, the CLI name comes from argparse `prog=`, the console-script or `bin` entry point, or commander's `.name()`. The CLI name is never a path word.
-
-### Reading argv paths
-
-A path is the chain of names from the root parser down to a leaf (a command with no subcommands of its own).
-
-**argparse**
-- `p.add_subparsers()` opens a level; each `sub.add_parser("name")` adds a word under the parser that owns `sub`. Follow the variables: `issue = nouns.add_parser("issue").add_subparsers()` then `issue.add_parser("ls")` is `["issue", "ls"]`.
-- `aliases=["x"]` gives each alias its own entry: the same path with the last word replaced, `kind: "alias"`, and `renamed_to` the full argv of the command it aliases, CLI name first (`["tool", "issue", "list"]`).
-- The handler is the `set_defaults(func=...)` function, or the `if args.verb == ...` branch that runs it.
-
-**click**
-- `@click.group()` makes a group; `@grp.command()` and `@grp.group()` add children; `grp.add_command(cmd, name="x")` adds `cmd` under `x`, else under its own name.
-- The name is the `name` argument, else the function name, lowercased. Since click 7, `_` becomes `-` (`def list_all` is `list-all`); since click 8.2, a trailing `_command`, `_cmd`, `_group` or `_grp` is also dropped. Check the click version the project pins.
-
-**commander**
-- `program.command("issue")` returns the new command; `issue.command("ls")` nests under it as `["issue", "ls"]`. Only the first word of `.command("get <id>")` is the name; `<id>` and `[x]` are arguments. `.addCommand(new Command("x"))` attaches a built command.
-- `.command("name", "description")` is a stand-alone executable subcommand: read its `<prog>-name` file as well.
-- `.alias("ls")` and `.aliases([...])` give each alias its own entry, recorded as for argparse `aliases=`.
-
-### Kind
-
-Read each handler:
-
-- It writes nothing to stdout, prints `renamed to: <argv>` on stderr and exits 2: `stub`. `renamed_to` is that argv split into words: `renamed to: tool issue list` gives `["tool", "issue", "list"]`.
-- It runs the new command and also prints `renamed to: <argv>`: `alias`, with `renamed_to` taken the same way. A framework alias (argparse `aliases=`, commander `.alias()`) is also `alias`, set as above.
-- Anything else: `command`. Hidden from help (`help=argparse.SUPPRESS`, a `metavar` that leaves a choice out, click `hidden=True`, commander `{ hidden: true }`) is a hint, not proof.
-
-### Merging catalog and source
-
-A CLI command and an MCP tool share one entry (both `path` and `mcp_name` set) only when the source shows they are the same operation, for example the tool handler calls the command's function. Otherwise each gets its own entry; the catalog tool has `path: null` and `source: "toolkit.json"`. The dispatcher form (`call <name>`) and catalog-generated paths follow the rules in [tree-format.md](tree-format.md).
-
-### Sources that cannot be read
-
-If any registration cannot be read, for example `add_admin_commands(sub)` imported from a module that is not in the repo, or commands built at run time from data you cannot read, then:
-
-- set `complete: false`;
-- keep every source you did read in `sources`, and never list the unread one;
-- remember the unread name (here `tool_admin`) so the reply can say what could not be read.
-
-### Rebuilding
-
-If `docs/cli-tree.json` already exists, copy its `local_verbs` into the new tree exactly. Never add a local verb unless the owner asks for it.
+The repo root and how to build the tree are in [command-tree.md](../../../resources/command-tree.md).
 
 ## Caller search
 
@@ -140,7 +89,7 @@ Write it in the CLI's repo, only on a fix run. Rewrite it whole each time; never
 
 | Field | Value |
 |-------|-------|
-| `standard_version` | The check envelope's `standard_version`. |
+| `standard_version` | The check envelope's `data.standard_version`. |
 | `search` | The recorded commands. |
 | `renames` | A list of `{old, new, callers}`. |
 

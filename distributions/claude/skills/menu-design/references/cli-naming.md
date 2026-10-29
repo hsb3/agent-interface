@@ -2,7 +2,7 @@
 
 Every CLI command and MCP tool name is a noun, then a verb: `tool issue list` and `issue_list`. One grammar lets a reader guess a name they have not seen.
 
-[cli-naming.json](cli-naming.json) holds the verbs, synonyms, short forms, plural exceptions and root commands. `tree.py check` applies these rules to a command tree ([tree-format.md](tree-format.md)) and puts the rule id in each finding's `rule` field. A violation fails the check. An advisory is reported and does not. A finding about a command carries its `source`; `collision` and `incomplete-tree` have `source: null`.
+[cli-naming.json](../../../resources/cli-naming.json) holds the verbs, synonyms, short forms, plural exceptions and root commands. `tree.py check` applies these rules to a command tree ([command-tree.md](../../../resources/command-tree.md)) and puts the rule id in each finding's `rule` field. A violation breaks the standard. An advisory is reported and does not. A finding about a command carries its `source`; `collision` and `incomplete-tree` have `source: null`.
 
 ## Verbs
 
@@ -107,7 +107,7 @@ The check skips entries of kind `stub` or `alias`, and entries whose CLI path st
 
 ## Local verbs
 
-A tree's `local_verbs` ([tree-format.md](tree-format.md)) are words approved for that CLI only.
+A tree's `local_verbs` ([command-tree.md](../../../resources/command-tree.md)) are words approved for that CLI only.
 
 - Only the owner decides that a word becomes a local verb.
 - The agent writes it on the owner's answer, never on its own to silence a finding.
@@ -117,7 +117,7 @@ Reason: a local verb leaves the standard, and only the owner can decide that.
 
 ## Adding a verb to the shared list
 
-A new verb must not be a synonym of an existing verb, and at least two CLIs must need it. Record `added` (date) and `needed_by` (CLIs) in [cli-naming.json](cli-naming.json). The two-CLI rule also applies when promoting a local verb.
+A new verb must not be a synonym of an existing verb, and at least two CLIs must need it. Record `added` (date) and `needed_by` (CLIs) in [cli-naming.json](../../../resources/cli-naming.json). The two-CLI rule also applies when promoting a local verb.
 
 ## Renames
 

@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import sys
 
-VOCAB = Path(__file__).resolve().parent.parent / "references" / "cli-naming.json"
+VOCAB = Path(__file__).resolve().parents[3] / "resources" / "cli-naming.json"
 KINDS = ("command", "alias", "stub")
 VIOLATIONS = {"synonym", "verb-first", "underscore-in-noun", "long-form", "noun-is-verb",
               "depth", "mixed-shape", "collision"}
@@ -182,30 +182,40 @@ def check(t, v):
         add("incomplete-tree", "", f"the tree may miss commands; sources read: {refs}", None)
 
     findings.sort(key=lambda f: (f["path"], f["code"]))
-    return {"schema_version": 1, "ok": not any(f["code"] in VIOLATIONS for f in findings),
-            "standard_version": v["version"], "data": findings}
+    return {"schema_version": 1, "ok": True,
+            "data": {"standard_version": v["version"], "findings": findings}}
 
 
-def fail(code, message):
-    print(json.dumps({"ok": False, "error": {"code": code, "message": message}}), file=sys.stderr)
-    return 2
+EXIT = {"INVALID_ARGUMENT": 2, "INTERNAL": 1}
+
+
+def fail(code, message, next_action):
+    error = {"code": code, "message": message, "retryable": False, "next_action": next_action}
+    sys.stdout.write(json.dumps({"schema_version": 1, "ok": False, "error": error}) + "\n")
+    return EXIT[code]
 
 
 def main(argv):
     try:
         if len(argv) != 2 or argv[0] != "check":
-            return fail("usage", "usage: tree.py check <tree.json>")
+            return fail("INVALID_ARGUMENT", "usage: tree.py check <tree.json>",
+                        "run tree.py check with the path of one tree file")
         t = load_tree(argv[1])
         env = check(t, json.loads(VOCAB.read_text(encoding="utf-8")))
         sys.stdout.write(json.dumps(env, indent=2) + "\n")
         sys.stdout.flush()
     except InvalidTree as e:
-        return fail("invalid-tree", str(e))
+        return fail("INVALID_ARGUMENT", str(e), "fix the tree file and run the check again")
     except Exception as e:
-        # A dead stdout would fail again in the shutdown flush and print "Exception ignored".
-        os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
-        return fail("internal-error", f"{type(e).__name__}: {e}")
-    return 0 if env["ok"] else 1
+        try:
+            code = fail("INTERNAL", f"{type(e).__name__}: {e}", "report this error; do not retry")
+            sys.stdout.flush()
+            return code
+        except OSError:
+            # A dead stdout would fail again in the shutdown flush and print "Exception ignored".
+            os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
+            return 1
+    return 0
 
 
 if __name__ == "__main__":
