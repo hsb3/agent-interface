@@ -1,5 +1,5 @@
 ---
-name: agent-interface
+name: menu-design
 description: >-
   Design and check CLI command names and MCP tool names against a noun-verb
   naming standard, and plan renames that list every caller. Use when the user
@@ -8,17 +8,18 @@ description: >-
   in a CLI, or asks to name or check MCP tools. Do not use for ordinary CLI use
   such as listing files or running a command, for building an MCP server or a
   multi-entry-point service (the agent-toolkits plugin's job), for writing
-  skills, or for unrelated questions.
+  skills, or for unrelated questions. Not for how a CLI behaves for agents
+  (output, errors, paging, prompts); that is the cli-behavior skill.
 ---
 
-# Agent Interface
+# Menu Design
 
 Check a CLI's command and MCP tool names against one noun-verb standard, plan
 renames with their callers, or design a new CLI's commands. The rules are in
 [cli-naming.md](references/cli-naming.md), the word lists in
-[cli-naming.json](references/cli-naming.json), the tree file's fields in
-[tree-format.md](references/tree-format.md), and the procedures in
-[remediation.md](references/remediation.md).
+[cli-naming.json](../../resources/cli-naming.json), the tree file's format and
+how to build it in [command-tree.md](../../resources/command-tree.md), and the
+caller search and rename plan in [remediation.md](references/remediation.md).
 
 Hard limits, every run:
 
@@ -30,7 +31,7 @@ Hard limits, every run:
   `<repo>/docs/cli-tree.json`, and on a fix run the plan, at
   `<repo>/docs/cli-renames.json`. Write no report file; the reply carries the
   findings. Files the user asks for are theirs, not the skill's. The repo root
-  is defined at the top of `references/remediation.md`.
+  is defined in `../../resources/command-tree.md`.
 - If the host refuses a write in the CLI's repo, for example because of Codex's
   workspace sandbox, stop and ask the owner to run the request from that repo.
   Do not write the file anywhere else.
@@ -43,7 +44,7 @@ do not search the working directory for a candidate.
 
 ## 2. Build the tree
 
-Follow "Building the tree" in `references/remediation.md`: merge the CLI's MCP
+Follow "Building the tree" in `../../resources/command-tree.md`: merge the CLI's MCP
 catalog (`toolkit.json`), when it has one, with the command definitions in its
 source. List every source you read; set `complete` to `false` when a source
 could not be read. On a rebuild, keep the existing tree's `local_verbs`. Write
@@ -53,19 +54,20 @@ the tree to `<repo>/docs/cli-tree.json`.
 
 From the repo root, run the bundled script on the tree:
 
-- Claude Code: `python3 ${CLAUDE_PLUGIN_ROOT}/skills/agent-interface/scripts/tree.py check docs/cli-tree.json`
+- Claude Code: `python3 ${CLAUDE_PLUGIN_ROOT}/skills/menu-design/scripts/tree.py check docs/cli-tree.json`
 - Codex: `python3 <skill folder>/scripts/tree.py check docs/cli-tree.json`,
   where the skill folder is the one that holds this file.
 
-Trust exit 0 or 1 only when stdout parses as the envelope
-`{schema_version, ok, standard_version, data}`. Exit 2 writes
-`{ok: false, error: {code, message}}` to stderr and nothing to stdout: for
-`invalid-tree`, fix the tree and run the check again; for anything else, report
-the error and stop. Never work out findings by hand.
+Use the result only when the script exits 0 and stdout parses as
+`{schema_version, ok: true, data: {standard_version, findings}}`. A failure
+prints `{schema_version, ok: false, error: {code, message, retryable,
+next_action}}` on stdout: on exit 2 with `INVALID_ARGUMENT` caused by the tree,
+fix the tree and run the check again; on any other failure, report the error's
+`message` and stop. Never work out findings by hand.
 
 ## 4. Reply
 
-Take every count and finding from the envelope:
+Take every count and finding from `data.findings`:
 
 - The number of violations and the number of advisories, then each finding:
   its `path`, `severity`, `code` and `message`, and its proposed name. Group
@@ -103,7 +105,7 @@ caller unchanged.
 When asked to design a new CLI's commands: write a tree from the owner's
 description using `noun verb` paths (or flat paths for a CLI with one noun),
 singular nouns, MCP tool names as `noun_verb`, and only approved verbs (the
-`verbs` in `references/cli-naming.json`, chosen by their `means`) plus local
+`verbs` in `../../resources/cli-naming.json`, chosen by their `means`) plus local
 verbs the owner names. A new CLI has no source yet: list one source,
 `{"kind": "source", "ref": "docs/cli-tree.json"}`, give every command that
 `source`, and set `complete` to `true`. A new CLI with no repo uses the working directory as its repo root.

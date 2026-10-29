@@ -11,8 +11,8 @@ import pytest
 
 from helpers import ROOT
 
-SKILL = ROOT / "skills/agent-interface"
-VOCAB = SKILL / "references/cli-naming.json"
+SKILL = ROOT / "skills/menu-design"
+VOCAB = ROOT / "resources/cli-naming.json"
 SCRIPT = SKILL / "scripts/tree.py"
 
 # vocabulary.md "Severities", and the rule id each code reports.
@@ -80,9 +80,10 @@ def run(tmp_path, content, script=SCRIPT):
 
 def check(tmp_path, t):
     code, out, err = run(tmp_path, t)
-    assert code in (0, 1), err
+    assert code == 0, out + err
     env = json.loads(out)
-    return code, env
+    assert env["ok"] is True
+    return env["data"]["findings"]
 
 
 # vocabulary.md "Classifying MCP names", every example.
@@ -99,14 +100,14 @@ MCP_TABLE = [
 
 @pytest.mark.parametrize("name, expected", MCP_TABLE)
 def test_mcp_name_classification(tmp_path, name, expected):
-    _, env = check(tmp_path, tree(cmd(mcp=name)))
-    assert [(f["code"], f["suggest"]) for f in env["data"]] == expected
-    assert all(f["path"] == name for f in env["data"])
+    findings = check(tmp_path, tree(cmd(mcp=name)))
+    assert [(f["code"], f["suggest"]) for f in findings] == expected
+    assert all(f["path"] == name for f in findings)
 
 
 SRC2 = [{"kind": "catalog", "ref": "toolkit.json"}, {"kind": "source", "ref": "cli.py"}]
 
-# (tree, exit code, findings as (code, path, suggest) in output order)
+# (tree, 1 when it has a violation else 0, findings as (code, path, suggest) in output order)
 ROWS = {
     "clean": (tree(cmd("issue list", "issue_list"), cmd("issue create")), 0, []),
     "advisory only": (tree(cmd("report frobnicate"), cmd("issue list")), 0,
@@ -179,12 +180,12 @@ ROWS = {
 
 
 @pytest.mark.parametrize("name", list(ROWS))
-def test_tree_findings_and_exit_code(tmp_path, name):
-    t, exit_code, expected = ROWS[name]
-    code, env = check(tmp_path, t)
-    assert [(f["code"], f["path"], f["suggest"]) for f in env["data"]] == expected
-    assert code == exit_code
-    assert env["ok"] is (exit_code == 0)
+def test_tree_findings(tmp_path, name):
+    # A completed check exits 0 even with violations; callers read the findings.
+    t, has_violation, expected = ROWS[name]
+    findings = check(tmp_path, t)
+    assert [(f["code"], f["path"], f["suggest"]) for f in findings] == expected
+    assert any(f["severity"] == "violation" for f in findings) is (has_violation == 1)
 
 
 def test_every_severity_code_has_a_row():
@@ -195,13 +196,16 @@ def test_every_severity_code_has_a_row():
 def test_findings_carry_the_contract_fields(tmp_path):
     t = tree(*(c for r in ROWS.values() for c in r[0]["commands"]),
              local_verbs=["encode"], complete=False)
-    code, env = check(tmp_path, t)
-    assert code == 1
-    assert set(env) == {"schema_version", "ok", "standard_version", "data"}
-    assert env["schema_version"] == 1 and env["ok"] is False
-    assert env["standard_version"] == json.loads(VOCAB.read_text())["version"]
-    assert env["data"] == sorted(env["data"], key=lambda f: (f["path"], f["code"]))
-    for f in env["data"]:
+    code, out, _ = run(tmp_path, t)
+    env = json.loads(out)
+    assert code == 0
+    assert set(env) == {"schema_version", "ok", "data"}
+    assert env["schema_version"] == 1 and env["ok"] is True
+    assert set(env["data"]) == {"standard_version", "findings"}
+    assert env["data"]["standard_version"] == json.loads(VOCAB.read_text())["version"]
+    findings = env["data"]["findings"]
+    assert findings == sorted(findings, key=lambda f: (f["path"], f["code"]))
+    for f in findings:
         assert set(f) == {"code", "severity", "path", "message", "suggest", "rule", "source"}
         assert (f["severity"], f["rule"]) == CODES[f["code"]], f
         assert isinstance(f["message"], str) and f["message"]
@@ -211,8 +215,7 @@ def test_findings_carry_the_contract_fields(tmp_path):
 
 def test_finding_sources_and_messages(tmp_path):
     t = tree(cmd("issue ls"), cmd("issue all", source="toolkit.json"), sources=SRC2, complete=False)
-    _, env = check(tmp_path, t)
-    by_path = {f["path"]: f for f in env["data"]}
+    by_path = {f["path"]: f for f in check(tmp_path, t)}
     assert by_path["issue ls"]["source"] == "cli.py"
     assert by_path["issue all"]["source"] == "toolkit.json"
     assert "toolkit.json" in by_path[""]["message"] and "cli.py" in by_path[""]["message"]
@@ -258,41 +261,49 @@ INVALID = {
 }
 
 
+EXIT = {"INVALID_ARGUMENT": 2, "INTERNAL": 1}
+
+
 def assert_error(code, out, err, error_code):
-    assert code == 2
-    assert out == ""
-    body = json.loads(err)
-    assert body["ok"] is False
-    assert set(body["error"]) == {"code", "message"}
-    assert body["error"]["code"] == error_code and body["error"]["message"]
+    assert code == EXIT[error_code]
+    assert err == ""
+    body = json.loads(out)
+    assert set(body) == {"schema_version", "ok", "error"}
+    assert body["schema_version"] == 1 and body["ok"] is False
+    e = body["error"]
+    assert set(e) == {"code", "message", "retryable", "next_action"}
+    assert e["code"] == error_code and e["retryable"] is False
+    assert isinstance(e["message"], str) and e["message"]
+    assert isinstance(e["next_action"], str) and e["next_action"]
 
 
 @pytest.mark.parametrize("name", list(INVALID))
 def test_invalid_tree_exits_2(tmp_path, name):
-    assert_error(*run(tmp_path, INVALID[name]), "invalid-tree")
+    assert_error(*run(tmp_path, INVALID[name]), "INVALID_ARGUMENT")
 
 
 def test_unreadable_tree_exits_2(tmp_path):
     p = subprocess.run([sys.executable, str(SCRIPT), "check", str(tmp_path / "absent.json")],
                        capture_output=True, text=True, timeout=30)
-    assert_error(p.returncode, p.stdout, p.stderr, "invalid-tree")
+    assert_error(p.returncode, p.stdout, p.stderr, "INVALID_ARGUMENT")
 
 
 @pytest.mark.parametrize("argv", [[], ["lint", "x.json"], ["check"], ["check", "a.json", "b.json"]])
 def test_usage_error_exits_2(argv):
     p = subprocess.run([sys.executable, str(SCRIPT), *argv], capture_output=True, text=True, timeout=30)
-    assert_error(p.returncode, p.stdout, p.stderr, "usage")
+    assert_error(p.returncode, p.stdout, p.stderr, "INVALID_ARGUMENT")
 
 
-def test_closed_stdout_exits_2(tmp_path):
+def test_closed_stdout_exits_1(tmp_path):
     f = tmp_path / "cli-tree.json"
     f.write_text(json.dumps(tree(*(cmd(f"n{i} ls") for i in range(2000)))), encoding="utf-8")
     p = subprocess.Popen([sys.executable, str(SCRIPT), "check", str(f)],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     p.stdout.close()
+    # The envelope cannot reach a closed stdout; the exit status still says INTERNAL.
     err = p.stderr.read()
-    assert p.wait(timeout=30) == 2
-    assert json.loads(err)["error"]["code"] == "internal-error"
+    assert p.wait(timeout=30) == 1
+    assert err == ""
 
 
 @pytest.mark.skipif(not Path("/usr/bin/python3").exists(), reason="no system Python")
@@ -301,14 +312,14 @@ def test_runs_on_the_system_python(tmp_path):
     f.write_text(json.dumps(ROWS["synonym"][0]), encoding="utf-8")
     p = subprocess.run(["/usr/bin/python3", str(SCRIPT), "check", str(f)],
                        capture_output=True, text=True, timeout=30)
-    assert p.returncode == 1, p.stderr
-    assert json.loads(p.stdout)["data"][0]["suggest"] == "label list"
+    assert p.returncode == 0, p.stdout + p.stderr
+    assert json.loads(p.stdout)["data"]["findings"][0]["suggest"] == "label list"
 
 
-def test_internal_error_exits_2(tmp_path):
-    # A broken vocabulary beside a copy of the script is a fault in the check, not in the tree.
-    (tmp_path / "scripts").mkdir()
-    (tmp_path / "references").mkdir()
-    script = Path(shutil.copy(SCRIPT, tmp_path / "scripts/tree.py"))
-    (tmp_path / "references/cli-naming.json").write_text('{"version": 1}', encoding="utf-8")
-    assert_error(*run(tmp_path, tree(cmd("issue list")), script=script), "internal-error")
+def test_internal_error_exits_1(tmp_path):
+    # A broken vocabulary three folders above a copy of the script is a fault in the check, not in the tree.
+    (tmp_path / "skills/menu-design/scripts").mkdir(parents=True)
+    (tmp_path / "resources").mkdir()
+    script = Path(shutil.copy(SCRIPT, tmp_path / "skills/menu-design/scripts/tree.py"))
+    (tmp_path / "resources/cli-naming.json").write_text('{"version": 1}', encoding="utf-8")
+    assert_error(*run(tmp_path, tree(cmd("issue list")), script=script), "INTERNAL")

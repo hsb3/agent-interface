@@ -25,13 +25,13 @@ Phase 0 (section 1) is written before the owner sets `Status: Approved`, because
 
 ## 2. Shared resources, rename and `tree.py` (phase 1)
 
-- [ ] 2.1 `git mv skills/agent-interface skills/menu-design`; frontmatter `name`, heading, description ("Not for how a CLI behaves for agents"), script path; `agents/openai.yaml` display name
-- [ ] 2.2 `git mv` `references/cli-naming.json` to `resources/cli-naming.json`; `tree.py` reads it three folders above the script
-- [ ] 2.3 `resources/command-tree.md` from `tree-format.md`, the repo-root paragraph and all six "Building the tree" subsections; delete `references/tree-format.md`; cut the moved text from `remediation.md` and link to the new file; `remediation.md` line 143 reads `data.standard_version`; `resources/README.md` lists both files
-- [ ] 2.4 `cli-naming.md` and `SKILL.md` links become skill-relative (`../../resources/...`, `../../../resources/...` from `references/`)
-- [ ] 2.5 `tree.py`: completed check exits 0 with `data: {standard_version, findings}`; failures are the envelope on stdout (`INVALID_ARGUMENT` exit 2, `INTERNAL` exit 1, `retryable`, `next_action`), including usage errors and uncaught exceptions. Change the tests named in design.md §2 first and watch them fail against the old script
-- [ ] 2.6 `SKILL.md` steps 3 and 4 for the new envelope
-- [ ] 2.7 `bin/gate tests/unit/test_cli_naming.py tests/unit/test_link_integrity.py`
+- [x] 2.1 `git mv skills/agent-interface skills/menu-design`; frontmatter `name`, heading, description ("Not for how a CLI behaves for agents"), script path; `agents/openai.yaml` display name
+- [x] 2.2 `git mv` `references/cli-naming.json` to `resources/cli-naming.json`; `tree.py` reads it three folders above the script
+- [x] 2.3 `resources/command-tree.md` from `tree-format.md`, the repo-root paragraph and all six "Building the tree" subsections; delete `references/tree-format.md`; cut the moved text from `remediation.md` and link to the new file; `remediation.md` line 143 reads `data.standard_version`; `resources/README.md` lists both files
+- [x] 2.4 `cli-naming.md` and `SKILL.md` links become skill-relative (`../../resources/...`, `../../../resources/...` from `references/`)
+- [x] 2.5 `tree.py`: completed check exits 0 with `data: {standard_version, findings}`; failures are the envelope on stdout (`INVALID_ARGUMENT` exit 2, `INTERNAL` exit 1, `retryable`, `next_action`), including usage errors and uncaught exceptions. Change the tests named in design.md §2 first and watch them fail against the old script
+- [x] 2.6 `SKILL.md` steps 3 and 4 for the new envelope
+- [x] 2.7 `bin/gate tests/unit/test_cli_naming.py tests/unit/test_link_integrity.py`
 
 ## 3. Behavior standard and script (phase 2)
 
