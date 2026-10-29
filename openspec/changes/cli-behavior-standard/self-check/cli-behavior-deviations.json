@@ -1,0 +1,26 @@
+{
+  "standard_version": 1,
+  "deviations": [
+    {
+      "command": "contract create",
+      "rule": "idempotent-write",
+      "proposed_form": "contract create keeps its idempotency key only in the contract it writes, beside the tree: the same key with the same tree returns the first result, the same key with a changed tree fails with CONFLICT, and the same key with a tree in another folder is a new key for that folder's contract",
+      "task": "run contract create inside a sandbox that allows writes only in the target repository's working tree, such as Codex's workspace sandbox, which the cli-behavior skill is documented to run under",
+      "harm": "a key store that does not depend on the output path lives outside the target repository (for example under the user's home), so the sandbox refuses the write and every keyed contract create fails",
+      "evidence": [
+        "skills/cli-behavior/scripts/behavior.py:313",
+        "cli-behavior SKILL.md: the Codex workspace sandbox note under Hard limits"
+      ],
+      "agent_cost": "an agent that reuses a key by mistake for a tree in another folder gets a new contract written instead of CONFLICT; a retry of the same command still returns the first result",
+      "work": {
+        "standard": "add a key store outside the output folder mapping key to resolved tree path and tree SHA-256, read and write it in create_contract, and fail with CONFLICT on a mismatch",
+        "deviation": "none: contract create already does this"
+      },
+      "status": "accepted",
+      "decided": {
+        "on": "2026-10-29",
+        "by": "the owner"
+      }
+    }
+  ]
+}
