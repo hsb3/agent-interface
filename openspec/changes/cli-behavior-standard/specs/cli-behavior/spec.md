@@ -51,8 +51,8 @@ When asked to check how a named CLI behaves for agents, the skill SHALL read the
 A request to check a CLI SHALL be treated as a decision to correct it: the skill SHALL NOT ask whether to fix it. After the check, the skill SHALL write `docs/cli-behavior-plan.md` in the CLI's repository, whose primary plan brings every failing result to the standard, lists each change that breaks a caller, and gives each unknown the test to run first.
 
 #### Scenario: Plan with an optional deviation
-- **WHEN** the check finds that `item list` prints a table, and a script in the CLI's repository parses that table
-- **THEN** `docs/cli-behavior-plan.md` gives the standard JSON output as the plan, lists the script as a broken caller, and offers keeping the table as the default output as an optional change with its reason and its work, and the reply does not ask whether to fix the CLI
+- **WHEN** the check finds that `item tail --json` streams one JSON object per line until interrupted, and a script in the CLI's repository reads that stream to follow new items
+- **THEN** `docs/cli-behavior-plan.md` gives one JSON document per run as the plan, lists the script as a broken caller, and offers keeping the stream as an optional change whose reason is following new items as they arrive, with its work, and the reply does not ask whether to fix the CLI
 - **EVAL** evals/cli-behavior/plans-full-compliance
 
 ### Requirement: Offer deviations only as options
