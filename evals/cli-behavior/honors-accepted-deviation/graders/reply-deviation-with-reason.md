@@ -4,7 +4,9 @@ weight: 1
 ---
 
 The reply reports `item tail`'s streaming output as an accepted deviation, not
-as a failing finding, and gives its reason: `item tail` runs until interrupted,
-so one JSON document would show the agent no event until the command stopped
-(following an item's events during a deploy). Fail if the reply lists
-`item tail`'s streaming as a failing finding, or omits the reason.
+as a failing finding, and gives the reason recorded in the register: its task
+(follow an item's events while a deploy runs) or its harm (one JSON document
+can only be printed when the command ends, and item tail runs until
+interrupted, so the agent would see no event until it stopped the command).
+Fail if the reply lists `item tail`'s streaming as a failing finding, or gives
+neither the task nor the harm.

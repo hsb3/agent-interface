@@ -14,6 +14,13 @@ from itemstore import Client
 
 
 def item_list(args):
+    if not 1 <= args.limit <= 100:
+        error = {"code": "INVALID_ARGUMENT", "message": "--limit must be from 1 to 100", "retryable": False, "next_action": "run again with --limit 100 or less"}
+        if args.json:
+            print(json.dumps({"schema_version": 1, "ok": False, "error": error}))
+        else:
+            print(error["message"], file=sys.stderr)
+        return 2
     client = Client()
     page = client.list_items(cursor=args.cursor, limit=args.limit)
     if not args.json:

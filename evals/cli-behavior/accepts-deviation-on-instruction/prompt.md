@@ -211,6 +211,14 @@ tool item list | awk 'NR > 1 && $3 == "closed" { print $1 }' | while read -r id;
       "commands": [
         "item list"
       ],
+      "rule": "confirm-flag",
+      "status": "not_applicable",
+      "reason": "rule applies to verb delete only"
+    },
+    {
+      "commands": [
+        "item list"
+      ],
       "rule": "paged-list",
       "status": "fail",
       "evidence": [
@@ -219,6 +227,14 @@ tool item list | awk 'NR > 1 && $3 == "closed" { print $1 }' | while read -r id;
       "task": "read every item without an unbounded output",
       "fix": "add --limit (default 20, maximum 100) and --cursor, and the page object",
       "test": "read 250 records with `tool item list --limit 20`: every record appears once, and the last page has has_more: false"
+    },
+    {
+      "commands": [
+        "item delete"
+      ],
+      "rule": "paged-list",
+      "status": "not_applicable",
+      "reason": "rule applies to verbs list and search only"
     },
     {
       "commands": [
@@ -235,6 +251,14 @@ tool item list | awk 'NR > 1 && $3 == "closed" { print $1 }' | while read -r id;
     },
     {
       "commands": [
+        "item list"
+      ],
+      "rule": "dry-run",
+      "status": "not_applicable",
+      "reason": "rule applies to kind write only"
+    },
+    {
+      "commands": [
         "item delete"
       ],
       "rule": "idempotent-write",
@@ -245,6 +269,23 @@ tool item list | awk 'NR > 1 && $3 == "closed" { print $1 }' | while read -r id;
       "task": "retry a delete after a timeout",
       "fix": "exit 0 with data.deleted false when the item is already gone",
       "test": "run `tool item delete 1 --yes` twice: both exit 0"
+    },
+    {
+      "commands": [
+        "item list"
+      ],
+      "rule": "idempotent-write",
+      "status": "not_applicable",
+      "reason": "rule applies to kind write only"
+    },
+    {
+      "commands": [
+        "item list",
+        "item delete"
+      ],
+      "rule": "operation-handle",
+      "status": "not_applicable",
+      "reason": "rule applies to kind long-running only"
     },
     {
       "commands": [
@@ -264,7 +305,7 @@ tool item list | awk 'NR > 1 && $3 == "closed" { print $1 }' | while read -r id;
 ```markdown
 # Behavior plan: tool
 
-Results: docs/cli-behavior.json (standard version 1): 2 pass, 8 fail, 0 unknown, 1 not applicable, 0 deviation.
+Results: docs/cli-behavior.json (standard version 1): 2 pass, 8 fail, 0 unknown, 6 not applicable, 0 deviation.
 
 ## Full compliance
 
