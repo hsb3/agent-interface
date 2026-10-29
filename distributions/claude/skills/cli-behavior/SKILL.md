@@ -60,7 +60,8 @@ The bundled script, run from the repository root:
 It prints one envelope on stdout. Use its result only when it exits 0 with
 `{schema_version, ok: true, data}`. A failure is `{schema_version, ok: false,
 error: {code, message, retryable, next_action}}`; `INVALID_ARGUMENT` (exit 2)
-lists every problem in `message`, one per line.
+means a file it cannot read, or one without the expected shape, and lists
+every problem in `message`, one per line.
 
 ## 1. Pick the job
 
@@ -158,10 +159,12 @@ Do not judge the names; that is menu-design's job.
    remove every `proposed` entry, add this run's options as `proposed`
    entries, and leave every `accepted` and `declined` entry exactly as it is.
    If the file does not exist and this run has no options, do not create it.
-6. **Validate.** Run `behavior.py result check docs/cli-behavior.json`. On exit
-   2, fix every problem in `message` and run it again, at most three runs in
-   all. If problems remain after the third, reply with them and stop. Take
-   every count and finding from `data`; never work them out by hand.
+6. **Validate.** Run `behavior.py result check docs/cli-behavior.json`. It
+   accepts the results when `data.problems` is empty. Otherwise fix every
+   problem in `data.problems` (on exit 2, every problem in `message`) and run
+   it again, at most three runs in all. If problems remain after the third,
+   reply with them and stop. Take every count and finding from `data`; never
+   work them out by hand.
 7. **Plan.** Write `<repo>/docs/cli-behavior-plan.md` in the layout of
    `references/output-files.md`. Full compliance comes first and is the plan:
    every failing result's fix by command, worst first, each caller the change

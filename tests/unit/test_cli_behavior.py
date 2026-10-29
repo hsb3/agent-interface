@@ -23,7 +23,8 @@ TREE_SCRIPT = ROOT / "skills/menu-design/scripts/tree.py"
 VOCAB = ROOT / "resources/cli-naming.json"
 EVALS = ROOT / "evals/cli-behavior"
 STATUSES = ("pass", "fail", "unknown", "not_applicable", "deviation")
-EXIT = {"INVALID_ARGUMENT": 2, "INTERNAL": 1}
+# The scripts exit as the standard's code table says.
+EXIT = {c: e["exit"] for c, e in json.loads(STANDARD.read_text(encoding="utf-8"))["error_codes"].items()}
 
 # design.md "The standard": the tables this file must hold, in order.
 KINDS = {"list": "read", "get": "read", "search": "read", "check": "read",
@@ -182,6 +183,12 @@ def assert_error(code, out, err, error_code):
     return e["message"]
 
 
+def problems(code, out, err):
+    data = ok(code, out, err)
+    assert set(data) == {"standard_version", "problems"} and data["problems"], data
+    return data["problems"]
+
+
 def entry(path, kind="command", mcp=None, renamed_to=None):
     c = {"path": path.split() if path else None, "mcp_name": mcp, "kind": kind, "source": "tool.py"}
     if renamed_to:
@@ -311,6 +318,25 @@ def test_contract_dry_run_writes_nothing(tmp_path):
     assert data["contract"] == contract(tmp_path, TRACKER)
 
 
+def test_contract_idempotency_key(tmp_path):
+    f = write_tree(tmp_path, TRACKER)
+    out = f.parent / "cli-contract.md"
+    first = ok(*run("contract", "create", f, "--idempotency-key", "k1"))
+    assert first == {"path": str(out)}
+    text = out.read_text(encoding="utf-8")
+    # The same key and tree returns the first result and leaves the file as it was.
+    assert ok(*run("contract", "create", f, "--idempotency-key", "k1")) == first
+    assert out.read_text(encoding="utf-8") == text
+    # The same key with a changed tree is a conflict and changes nothing.
+    write_tree(tmp_path, make_tree("tracker", "issue list"))
+    message = assert_error(*run("contract", "create", f, "--idempotency-key", "k1"), "CONFLICT")
+    assert "k1" in message
+    assert out.read_text(encoding="utf-8") == text
+    # A new key writes the changed tree's contract.
+    ok(*run("contract", "create", f, "--idempotency-key", "k2"))
+    assert "### issue create" not in out.read_text(encoding="utf-8")
+
+
 def from_tree_fixture():
     text = (EVALS / "designs-contract-from-tree/prompt.md").read_text(encoding="utf-8")
     return json.loads(re.search(r"```json\n(.*?)```", text, re.S).group(1))
@@ -418,8 +444,8 @@ def repo(tmp_path, results, register=REGISTER, tree=CHECK_TREE):
 def test_result_check_accepts_a_valid_file(tmp_path):
     results = build_results()
     data = ok(*run("result", "check", repo(tmp_path, results)))
-    assert set(data) == {"standard_version", "counts", "findings"}
-    assert data["standard_version"] == 1
+    assert set(data) == {"standard_version", "counts", "findings", "problems"}
+    assert data["standard_version"] == 1 and data["problems"] == []
     counts = Counter(r["status"] for r in results["results"])
     assert data["counts"] == {s: counts[s] for s in STATUSES}
     # Only the deviation result counts; the proposed and declined entries do not.
@@ -438,7 +464,7 @@ def test_result_check_without_a_register(tmp_path):
 def test_result_check_rejects_an_empty_register(tmp_path):
     overrides = {k: v for k, v in OVERRIDES.items() if v != "deviation"}
     f = repo(tmp_path, build_results(overrides=overrides), register={})
-    assert "deviations list" in assert_error(*run("result", "check", f), "INVALID_ARGUMENT")
+    assert any("deviations list" in p for p in problems(*run("result", "check", f)))
 
 
 def extract_files(case, tmp_path):
@@ -478,8 +504,7 @@ def test_command_kind_sets_an_unlisted_verbs_rules(tmp_path):
     extract_files("honors-accepted-deviation", tmp_path)
     f = tmp_path / "docs/cli-behavior.json"
     f.write_text(json.dumps(tail_results({("dry-run", "item tail"): "pass"})), encoding="utf-8")
-    message = assert_error(*run("result", "check", f), "INVALID_ARGUMENT")
-    assert "dry-run: item tail is outside the rule" in message
+    assert any("dry-run: item tail is outside the rule" in p for p in problems(*run("result", "check", f)))
 
 
 def drop(results, rule, status, command):
@@ -541,18 +566,17 @@ def test_result_check_rejects(tmp_path, name):
     mutate, expected = MUTATIONS[name]
     results, register = build_results(), copy.deepcopy(REGISTER)
     mutate(results, register)
-    message = assert_error(*run("result", "check", repo(tmp_path, results, register)), "INVALID_ARGUMENT")
-    assert expected in message, message
+    found = problems(*run("result", "check", repo(tmp_path, results, register)))
+    assert any(expected in p for p in found), found
 
 
 def test_result_check_reports_every_problem_at_once(tmp_path):
     results, register = build_results(), copy.deepcopy(REGISTER)
     for mutate, _ in MUTATIONS.values():
         mutate(results, register)
-    message = assert_error(*run("result", "check", repo(tmp_path, results, register)), "INVALID_ARGUMENT")
-    lines = message.splitlines()
+    found = problems(*run("result", "check", repo(tmp_path, results, register)))
     for _, expected in MUTATIONS.values():
-        assert any(expected in line for line in lines), expected
+        assert any(expected in p for p in found), expected
 
 
 # Failures
@@ -598,7 +622,10 @@ def test_missing_files_exit_2(tmp_path):
 
 
 USAGE = [[], ["contract"], ["contract", "create"], ["contract", "create", "a.json", "b.json"],
-         ["contract", "create", "--dry-run"], ["contract", "check", "a.json"], ["result", "check"],
+         ["contract", "create", "--dry-run"], ["contract", "create", "a.json", "--idempotency-key"],
+         ["contract", "create", "a.json", "--idempotency-key", "k", "--idempotency-key", "k"],
+         ["contract", "create", "a.json", "--dry-run", "--dry-run"],
+         ["contract", "check", "a.json"], ["result", "check"],
          ["result", "check", "a.json", "--dry-run"], ["result", "create", "a.json"], ["tree", "check", "a"]]
 
 

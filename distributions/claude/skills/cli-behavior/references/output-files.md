@@ -64,7 +64,7 @@ Coverage:
 
 ## Register: `docs/cli-behavior-deviations.json`
 
-Each option offered on a check, and each decision on one. Schema: [deviation.schema.json](deviation.schema.json); `result check` rejects an entry with a missing or empty field.
+Each option offered on a check, and each decision on one. Schema: [deviation.schema.json](deviation.schema.json); `result check` reports a problem for an entry with a missing or empty field.
 
 ```json
 {
@@ -146,7 +146,7 @@ Declined: <command>, <rule> (<on>, <by>).
 
 ## Contract: `docs/cli-contract.md`
 
-Written only by `behavior.py contract create`; never by hand. The same tree always gives the same bytes. Layout:
+Written only by `behavior.py contract create`; never by hand. The same tree always gives the same bytes. With `--idempotency-key`, the file ends with a comment holding the key and the tree's SHA-256: a repeat with that key and the same tree returns the first result, and with a changed tree fails with `CONFLICT`. Layout:
 
 - `# Behavior contract: <cli>`, and a line saying the file is generated from the tree and the standard's version.
 - `## Commands`: per covered command, in tree order, a `### <command path>` section with its kind, flags (`--json`, `--yes`, `--limit`, `--cursor`, `--dry-run`, `--idempotency-key` as its rules require), applicable rule ids and error codes.

@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Write a CLI's behavior contract, or check a behavior results file, against the cli-behavior standard.
 
-behavior.py contract create <tree.json> [--dry-run]
+behavior.py contract create <tree.json> [--dry-run] [--idempotency-key <key>]
 behavior.py result check <results.json>
 """
 from collections import Counter
 import datetime
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -22,10 +23,16 @@ STATUS_FIELDS = {"pass": ("evidence",), "fail": ("evidence", "task", "fix", "tes
                  "unknown": ("test",), "not_applicable": ("reason",), "deviation": ("evidence",)}
 ENTRY_TEXT = ("command", "rule", "proposed_form", "task", "harm", "agent_cost")
 TREE, REGISTER, CONTRACT = "cli-tree.json", "cli-behavior-deviations.json", "cli-contract.md"
-USAGE = "usage: behavior.py contract create <tree.json> [--dry-run] | behavior.py result check <results.json>"
+USAGE = ("usage: behavior.py contract create <tree.json> [--dry-run] [--idempotency-key <key>]"
+         " | behavior.py result check <results.json>")
+KEY_LINE = re.compile(r"<!-- idempotency-key: (.*) tree-sha256: ([0-9a-f]{64}) -->\n\Z")
 
 
 class Invalid(Exception):
+    pass
+
+
+class Conflict(Exception):
     pass
 
 
@@ -284,7 +291,8 @@ def check_results(path):
         problems += [f"{rule['id']}: {c} is outside the rule's applies_to, so its only status is not_applicable"
                      for c in cmds if status != "not_applicable"
                      and not applies(rule["applies_to"], base_verb(c, vocab), kind_of(c))]
-    need(not problems, "\n".join(dict.fromkeys(problems)))
+    if problems:
+        return {"standard_version": std["version"], "problems": list(dict.fromkeys(problems))}
 
     order = {c: i for i, c in enumerate(commands)}
     rule_order = {r: i for i, r in enumerate(rules)}
@@ -294,19 +302,46 @@ def check_results(path):
                                  rule_order[f["rule"]]))
     counts = Counter(r["status"] for r in data["results"])
     return {"standard_version": std["version"], "counts": {s: counts[s] for s in STATUS_FIELDS},
-            "findings": findings}
+            "findings": findings, "problems": []}
 
 
-def create_contract(name, dry_run):
+def create_contract(name, dry_run, key):
     text = render_contract(load_tree(name), bundled(STANDARD), bundled(VOCAB))
-    out = str(Path(name).parent / CONTRACT)
+    out = Path(name).parent / CONTRACT
+    if key is not None:
+        # The key and the tree's hash are kept in the contract itself, so a repeat needs no other file.
+        digest = hashlib.sha256(Path(name).read_bytes()).hexdigest()
+        first = KEY_LINE.search(out.read_text(encoding="utf-8")) if out.exists() else None
+        if first and json.loads(first.group(1)) == key:
+            if first.group(2) != digest:
+                raise Conflict(f"idempotency key {key!r} was used with a different {TREE}")
+            return {"path": str(out)}
+        text += f"\n<!-- idempotency-key: {json.dumps(key)} tree-sha256: {digest} -->\n"
     if dry_run:
-        return {"path": out, "contract": text}
-    Path(out).write_text(text, encoding="utf-8")
-    return {"path": out}
+        return {"path": str(out), "contract": text}
+    out.write_text(text, encoding="utf-8")
+    return {"path": str(out)}
 
 
-EXIT = {"INVALID_ARGUMENT": 2, "INTERNAL": 1}
+def contract_args(args):
+    """Return (tree, dry_run, key) for contract create's arguments, or None on a usage error."""
+    names, dry_run, key = [], False, None
+    rest = iter(args)
+    for a in rest:
+        if a == "--dry-run" and not dry_run:
+            dry_run = True
+        elif a == "--idempotency-key" and key is None:
+            key = next(rest, "")
+            if not key.strip() or key.startswith("-"):
+                return None
+        elif a.startswith("-"):
+            return None
+        else:
+            names.append(a)
+    return (names[0], dry_run, key) if len(names) == 1 else None
+
+
+EXIT = {"INVALID_ARGUMENT": 2, "CONFLICT": 1, "INTERNAL": 1}
 
 
 def fail(code, message, next_action):
@@ -318,10 +353,8 @@ def fail(code, message, next_action):
 def main(argv):
     try:
         data = None
-        if argv[:2] == ["contract", "create"]:
-            names = [a for a in argv[2:] if a != "--dry-run"]
-            if argv[2:].count("--dry-run") <= 1 and len(names) == 1 and not names[0].startswith("-"):
-                data = create_contract(names[0], "--dry-run" in argv)
+        if argv[:2] == ["contract", "create"] and (parsed := contract_args(argv[2:])):
+            data = create_contract(*parsed)
         elif argv[:2] == ["result", "check"] and len(argv) == 3 and not argv[2].startswith("-"):
             data = check_results(argv[2])
         if data is None:
@@ -330,6 +363,8 @@ def main(argv):
         sys.stdout.flush()
     except Invalid as e:
         return fail("INVALID_ARGUMENT", str(e), "fix the problems in the named file and run the command again")
+    except Conflict as e:
+        return fail("CONFLICT", str(e), "run it again with a new --idempotency-key")
     except Exception as e:
         try:
             code = fail("INTERNAL", f"{type(e).__name__}: {e}", "report this error; do not retry")
