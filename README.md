@@ -57,4 +57,4 @@ Start a new session after installing. Antigravity support is untested; see
 - [Project site](https://hsb3.github.io/agent-interface/)
 - [Supported hosts](docs/harnesses.md), [Claude Code notes](docs/claude.md), [Codex notes](docs/codex.md)
 - [Privacy](docs/privacy.md) and [verifying releases](docs/releases.md)
-- [Testing and host records](https://github.com/hsb3/agent-interface/blob/main/TESTING.md)
+- [Testing and host records](https://github.com/hsb3/agent-interface/blob/main/docs/testing.md)

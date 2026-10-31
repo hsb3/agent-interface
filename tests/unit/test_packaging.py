@@ -15,7 +15,7 @@ PACK = runpy.run_path(str(ROOT / "scripts/pack_plugin.py"))
 build = PACK["build"]
 NAME = json.loads((ROOT / "plugin.json").read_text())["name"]
 SKILL = sorted(p.parent.name for p in (ROOT / "skills").glob("*/SKILL.md"))[0]
-SOURCE_ITEMS = ("plugin.json", "LICENSE", "README.md", "AGENTS.md", "TESTING.md", "skills", "agents", "resources",
+SOURCE_ITEMS = ("plugin.json", "LICENSE", "README.md", "AGENTS.md", "skills", "agents", "resources",
                 "docs", "assets", "evals", "openspec", ".claude-plugin", ".codex-plugin", ".agents")
 
 
@@ -67,7 +67,7 @@ def test_runtime_is_complete_reproducible_and_lean(
         assert not any(n.startswith(("tests/", ".github/", ".agents/", "evals/", "bin/",
                                      "docs/designs/", "hooks/", "distributions/", "openspec/"))
                        or n.endswith("marketplace.json") for n in names)
-        assert not names & {"AGENTS.md", "TESTING.md", "assets/private.txt"}
+        assert not names & {"AGENTS.md", "docs/testing.md", "docs/development.md", "assets/private.txt"}
         assert (".claude-plugin/plugin.json" in names) == (target == "claude")
         has_adapters = any(source.glob(".claude-plugin/agents/*.md"))
         assert any(n.startswith(".claude-plugin/agents/") for n in names) == (

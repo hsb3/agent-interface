@@ -11,4 +11,4 @@
 ## 3. Verify
 
 - [ ] 3.1 `python3 scripts/pack_plugin.py --sync` and `bin/gate`
-- [ ] 3.2 Verify tier from TESTING.md; one host record row per host
+- [ ] 3.2 Verify tier from docs/testing.md; one host record row per host

@@ -17,6 +17,7 @@ SHARED = (
     "agents/*.md", "resources/**/*", "docs/*.md", "docs/assets/*.svg", "docs/assets/*.png",
     "assets/*.svg", "assets/*.png",
 )
+DEV_DOCS = {Path("docs/development.md"), Path("docs/testing.md")}
 HOST = {
     "claude": (".claude-plugin/plugin.json", ".claude-plugin/icon.png",
                ".claude-plugin/agents/*.md"),
@@ -48,7 +49,8 @@ def build(root: Path, target: str, output: Path) -> tuple[Path, Path]:
             if not path.resolve().is_relative_to(root):
                 raise ValueError(f"Path outside source: {relative}")
             hidden = any(part.startswith(".") for part in relative.parts[1:])
-            if path.is_file() and not hidden and "__pycache__" not in relative.parts:
+            if path.is_file() and not hidden and "__pycache__" not in relative.parts \
+                    and relative not in DEV_DOCS:
                 files.add(relative)
     skills = sorted(p.name for p in (root / "skills").glob("*")
                     if p.is_dir() and not p.name.startswith((".", "_")))

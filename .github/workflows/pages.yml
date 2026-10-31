@@ -39,6 +39,7 @@ jobs:
           cp README.md "$site/index.md"
           cp .github/pages/_config.yml "$site/_config.yml"
           cp docs/*.md "$site/docs/"
+          rm "$site/docs/development.md" "$site/docs/testing.md"
           cp assets/*.svg assets/*.png "$site/assets/" 2>/dev/null || true
           for d in skills/*/assets; do
             [ -d "$d" ] || continue
