@@ -1,7 +1,7 @@
 # Development
 
-How this repo is run. The rules agents follow are in [AGENTS.md](AGENTS.md); test
-tiers and host records are in [TESTING.md](TESTING.md). This file does not ship.
+How this repo is run. The rules agents follow are in [AGENTS.md](../AGENTS.md); test
+tiers and host records are in [testing.md](testing.md). This file does not ship.
 
 ## Work queues
 
@@ -16,7 +16,7 @@ A separate board such as Backlog.md is more than a repo this size needs.
 ## Design workflow: OpenSpec with the `plugin-change` schema
 
 Every feature or behavior change is an OpenSpec change on the custom schema in
-[openspec/schemas/plugin-change/](openspec/schemas/plugin-change/schema.yaml):
+[openspec/schemas/plugin-change/](../openspec/schemas/plugin-change/schema.yaml):
 
 1. `openspec new change <name>` starts it.
 2. **Proposal:** who it is for, the task, and how success is known.

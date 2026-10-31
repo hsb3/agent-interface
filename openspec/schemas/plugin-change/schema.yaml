@@ -71,7 +71,7 @@ artifacts:
       Ordered checkboxes. First the eval cases named by the specs' EVAL lines,
       then skills, references, resources, personas and Claude adapters, then
       `python3 scripts/pack_plugin.py --sync` and `bin/gate`, then the verify
-      tier from TESTING.md with one host record row per host. Each task names
+      tier from docs/testing.md with one host record row per host. Each task names
       the scenario or file it satisfies. No task starts before design.md is
       marked Approved.
     requires:
@@ -82,4 +82,4 @@ apply:
   instruction: |
     Build only after design.md says `Status: Approved`. Work tasks.md in order,
     ticking each box when its check passes. Finish with `bin/gate` green and the
-    TESTING.md host rows, then `openspec archive <change>`.
+    docs/testing.md host rows, then `openspec archive <change>`.

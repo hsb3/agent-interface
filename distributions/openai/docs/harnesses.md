@@ -16,4 +16,4 @@ Install the whole plugin. Copying `skills/` alone breaks skills that read
 `docs/` and `resources/` at run time.
 
 Tested versions and dates live in the
-[host record](https://github.com/hsb3/agent-interface/blob/main/TESTING.md#host-record).
+[host record](https://github.com/hsb3/agent-interface/blob/main/docs/testing.md#host-record).

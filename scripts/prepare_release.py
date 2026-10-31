@@ -56,7 +56,7 @@ def prepare(root: Path, tag: str, output: Path, commit: str) -> None:
         "## Changes\n\nOwner: summarize changes and migration steps before publishing.\n\n"
         "## Verification\n\nOffline unit tests and runtime packaging are checked by CI. "
         "Live installation and workflow execution are not established by this build. "
-        "Owner: attach host evidence from TESTING.md before publishing.\n",
+        "Owner: attach host evidence from docs/testing.md before publishing.\n",
         encoding="utf-8",
     )
 

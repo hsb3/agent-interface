@@ -8,7 +8,7 @@
 - A new feature or behavior change is an OpenSpec change on the `plugin-change`
   schema (`openspec new change <name>`). Code changes wait until its `design.md`
   says `Status: Approved`. Bug fixes need no change. The full workflow, lineage
-  and brand-kit notes are in [DEVELOPMENT.md](DEVELOPMENT.md).
+  and brand-kit notes are in [docs/development.md](docs/development.md).
 - Work queues are GitHub issues: `bug` is the rework queue, fixed directly;
   `enhancement` is the feature queue, and each accepted request becomes an
   OpenSpec change before code.
@@ -22,13 +22,14 @@
 - Personas in `agents/` stay host-neutral. Claude tool lists and `omitClaudeMd`
   belong only in the matching `.claude-plugin/agents/` adapter.
 - `docs/*.md` is user-facing: it ships in every package and publishes to the
-  optional site. Development files (`AGENTS.md`, `TESTING.md`, `openspec/`) never
-  ship; shipped files link to them by absolute GitHub URL.
+  optional site, except `docs/development.md` and `docs/testing.md`. Development
+  files (`AGENTS.md`, those two, `openspec/`) never ship; shipped files link to
+  them by absolute GitHub URL.
 - Images come from the one-time brand kit: every SVG uses only colors listed in
   `assets/brand.json`, and every PNG has its SVG source beside it.
 - Each skill keeps its deviation schema at `references/deviation.schema.json`
   and writes its register to `docs/<skill>-deviations.json` in the target repository.
 - Runtime packages carry no hooks, MCP servers or apps unless a change's design
   adds them and the packer and tests change with it.
-- Done means `bin/gate` passes and `TESTING.md` records any host run claimed.
+- Done means `bin/gate` passes and `docs/testing.md` records any host run claimed.
 - EGM artifact directory: .dev/egm
